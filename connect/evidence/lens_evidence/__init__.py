@@ -1,1 +1,1 @@
-from .containers import ModelProfilerContainer, ProfilerContainer
+from .containers import DataProfilerContainer, ModelProfilerContainer

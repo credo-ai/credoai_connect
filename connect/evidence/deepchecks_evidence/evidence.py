@@ -1,5 +1,9 @@
 from connect.evidence import Evidence
 
+from .utils import get_deepchecks_type
+
+DeepChecksType = get_deepchecks_type()
+
 
 class DeepchecksEvidence(Evidence):
     """
@@ -23,7 +27,7 @@ class DeepchecksEvidence(Evidence):
     def __init__(
         self,
         name: str,
-        result: SuiteResult,
+        result: DeepChecksType,
         additional_labels: dict = None,
         **metadata,
     ):

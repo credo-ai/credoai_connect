@@ -1,17 +1,23 @@
 import pandas as pd
-from deepchecks.core import SuiteResult
 
 from connect.evidence import EvidenceContainer, TableEvidence
 from connect.utils import ValidationError
 
 from .evidence import DeepchecksEvidence
+from .utils import get_deepchecks_type
+
+DeepChecksType = get_deepchecks_type()
 
 
 class DeepchecksContainer(EvidenceContainer):
     """Container for all Table type evidence"""
 
     def __init__(
-        self, name: str, data: SuiteResult, labels: dict = None, metadata: dict = None
+        self,
+        name: str,
+        data: DeepChecksType,
+        labels: dict = None,
+        metadata: dict = None,
     ):
         super().__init__(DeepchecksEvidence, data, labels, metadata)
         self.name = name
@@ -37,7 +43,7 @@ class DeepchecksContainer(EvidenceContainer):
         ]
 
     def _validate_inputs(self, data):
-        if not isinstance(data, SuiteResult):
+        if not isinstance(data, DeepChecksType):
             raise ValidationError("'data' must be a deepchecks.core.SuiteResult object")
 
     def _validate(self, data):

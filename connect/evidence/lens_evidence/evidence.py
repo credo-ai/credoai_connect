@@ -1,7 +1,8 @@
 import json
 
-from connect.evidence import Evidence
 from pandas import DataFrame, Series
+
+from connect.evidence import Evidence
 
 
 class DataProfilerEvidence(Evidence):
@@ -14,10 +15,7 @@ class DataProfilerEvidence(Evidence):
 
     @property
     def data(self):
-        data = self._data["results"]
-        if isinstance(data, (Series, DataFrame)):
-            data = json.loads(data.to_json())
-        return data
+        return self._data
 
     @property
     def base_label(self):
