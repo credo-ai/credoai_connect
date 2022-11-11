@@ -2,7 +2,8 @@
 #
 # Copyright (C) 2021-2021 Credo AI
 import setuptools
-from credoai import __version__
+
+from connect import __version__
 
 DESCRIPTION = "Credo AI Connect: Integration point for Credo AI Governance Platform"
 DISTNAME = "credoai-connect"
