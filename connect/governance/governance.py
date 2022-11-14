@@ -5,10 +5,11 @@ Credo Governance
 import json
 from typing import List, Optional, Union
 
+from json_api_doc import deserialize, serialize
+
 from connect import __version__
 from connect.evidence import Evidence, EvidenceRequirement
 from connect.utils import check_subset, global_logger, json_dumps, wrap_list
-from json_api_doc import deserialize, serialize
 
 from .credo_api import CredoApi
 from .credo_api_client import CredoApiClient

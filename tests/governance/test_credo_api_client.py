@@ -4,6 +4,7 @@ Test Credo API client
 
 import os
 import pathlib
+
 import pytest
 import responses
 from credoai import __version__
@@ -63,7 +64,8 @@ class TestCredoApiClient:
     @responses.activate
     def client(self):
         responses.post(
-            f"{API_SERVER}/auth/exchange", json={"access_token": "VALID_TOKEN"},
+            f"{API_SERVER}/auth/exchange",
+            json={"access_token": "VALID_TOKEN"},
         )
 
         config = CredoApiConfig(api_key=API_KEY, api_server=API_SERVER, tenant=TENANT)
@@ -187,7 +189,9 @@ class TestCredoApiClient:
 
     @responses.activate
     def test_delete_request(self, client):
-        responses.delete(f"{API_SERVER}/api/v2/{TENANT}/models/123",)
+        responses.delete(
+            f"{API_SERVER}/api/v2/{TENANT}/models/123",
+        )
 
         response = client.delete("models/123")
         assert None == response
