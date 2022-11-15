@@ -7,8 +7,9 @@ import pathlib
 
 import pytest
 import responses
-from credoai import __version__
-from credoai.governance.credo_api_client import CredoApiClient, CredoApiConfig
+
+from connect import __version__
+from connect.governance.credo_api_client import CredoApiClient, CredoApiConfig
 
 
 class TestCredoApiConfig:
