@@ -141,7 +141,9 @@ class MetricContainer(EvidenceContainer):
         required_columns = {"type", "value"}
         column_overlap = data.columns.intersection(required_columns)
         if len(column_overlap) != len(required_columns):
-            raise ValidationError(f"Must have columns: {required_columns}")
+            raise ValidationError(
+                f"Metrics dataframe must have columns: {required_columns}"
+            )
 
     def remove_NaNs(self, data):
         return helper_df_remove_NaNs(data)
