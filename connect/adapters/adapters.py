@@ -2,6 +2,7 @@ import pandas as pd
 
 from connect.evidence import MetricContainer
 from connect.governance import Governance
+from connect.utils import ValidationError
 
 
 def metrics_to_governance(
@@ -55,5 +56,7 @@ def metrics_to_evidence(metrics, labels=None, metadata=None):
     """
     if isinstance(metrics, dict):
         metrics = pd.DataFrame(metrics.items(), columns=["type", "value"])
+    elif not isinstance(metrics, pd.DataFrame):
+        raise ValidationError("Metrics must be a dictionary or a dataframe")
     container = MetricContainer(metrics, labels, metadata)
     return container.to_evidence()
