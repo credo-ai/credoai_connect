@@ -1,5 +1,5 @@
 """
-Primary interface for Credo AI Lens package
+Credo AI Connect package
 """
 
 __version__ = "0.0.2"

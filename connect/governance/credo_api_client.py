@@ -132,7 +132,7 @@ class CredoApiClient:
             "Authorization": f"Bearer {access_token}",
             "accept": "application/vnd.api+json",
             "content-type": "application/vnd.api+json",
-            "X-Client-Name": "Credo AI Lens",
+            "X-Client-Name": "Credo AI Connect",
             "X-Client-Version": __version__,
         }
         self._session.headers.update(headers)
