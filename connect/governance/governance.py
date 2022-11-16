@@ -330,7 +330,7 @@ class Governance:
             f"Saving {len(self._evidences)} evidences to {filename}.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id} "
         )
         data = self._prepare_export_data()
-        meta = {"client": "Credo AI Lens", "version": __version__}
+        meta = {"client": "Credo AI Connect", "version": __version__}
         data = json_dumps(serialize(data=data, meta=meta))
         with open(filename, "w") as f:
             f.write(data)

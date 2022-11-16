@@ -84,7 +84,7 @@ class TestCredoApiClient:
         headers = client._session.headers
         assert "Bearer REFRESHED_VALID_TOKEN" == headers.get("Authorization")
         assert "application/vnd.api+json" == headers.get("content-type")
-        assert "Credo AI Lens" == headers.get("X-Client-Name")
+        assert "Credo AI Connect" == headers.get("X-Client-Name")
         assert __version__ == headers.get("X-Client-Version")
 
     @responses.activate
