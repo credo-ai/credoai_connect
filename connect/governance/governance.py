@@ -79,6 +79,10 @@ class Governance:
         self._api = CredoApi(client=client)
 
     @property
+    def model(self):
+        return self._model
+
+    @property
     def requirements_satisified(self):
         return self._match_requirements()
 
@@ -270,16 +274,38 @@ class Governance:
 
             self.clear_evidence()
 
-    def set_artifacts(self, model, training_dataset=None, assessment_dataset=None):
-        """Sets up internal knowledge of model and datasets to send to Credo AI Platform"""
+    def set_artifacts(
+        self,
+        model: str,
+        model_tags: dict,
+        training_dataset: str = None,
+        assessment_dataset: str = None,
+    ):
+        """Sets up internal knowledge of model and datasets to send to Credo AI Platform
+
+
+        Parameters
+        ----------
+        model : str
+            model name
+        model_tags : dict
+            List of key:value pairs specifying model tags. These are typically
+            used to pair the model with tagged governance requirements,
+            which are defined in a Governance instance's assessment_plan
+        training_dataset : str, optional
+            training dataset name, by default None
+        assessment_dataset : str, optional
+            assessment dataset name, by default None
+        """
+
         global_logger.info(
-            f"Adding model ({model.name}) to governance. Model has tags: {model.tags}"
+            f"Adding model ({model}) to governance. Model has tags: {model_tags}"
         )
-        prepared_model = {"name": model.name, "tags": model.tags}
+        prepared_model = {"name": model, "tags": model_tags}
         if training_dataset:
-            prepared_model["training_dataset_name"] = training_dataset.name
+            prepared_model["training_dataset_name"] = training_dataset
         if assessment_dataset:
-            prepared_model["assessment_dataset_name"] = assessment_dataset.name
+            prepared_model["assessment_dataset_name"] = assessment_dataset
         self._model = prepared_model
 
     def set_evidence(self, evidences: List[Evidence]):

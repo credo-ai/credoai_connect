@@ -1,5 +1,5 @@
 """
-Utilities for CredoAI Lens
+Utilities for CredoAI Connect
 """
 
 from .common import *
