@@ -23,6 +23,7 @@ class DeepchecksContainer(EvidenceContainer):
         self.name = name
 
     def to_evidence(self, **metadata):
+        self.remove_NaNs()
         checks_2_df = {"Check_Name": list(), "Status": list()}
         for check in self._data.get_not_passed_checks():
             checks_2_df["Check_Name"].append(check.header)

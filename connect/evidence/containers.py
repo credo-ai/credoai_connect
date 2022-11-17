@@ -7,6 +7,7 @@ suitable evidences.
 from abc import ABC, abstractmethod
 
 import pandas as pd
+import numpy as np
 
 from connect.utils import ValidationError
 
@@ -61,6 +62,15 @@ class EvidenceContainer(ABC):
     def _validate(self, data):
         pass
 
+    def remove_NaNs(self):
+        """
+        Converts NaNs in self._data to NoneType if self._data is of type pd.DataFrame
+            JSON files output as evidence for Governance platform cannot support NaNs
+        """
+        if isinstance(self._data, pd.DataFrame):
+            self._data = self._data.fillna(np.nan).replace([np.nan], [None])
+        return self
+
 
 class MetricContainer(EvidenceContainer):
     """Containers for all Metric type evidence"""
@@ -69,6 +79,7 @@ class MetricContainer(EvidenceContainer):
         super().__init__(MetricEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
+        self.remove_NaNs()
         evidence = []
         for _, data in self._data.iterrows():
             evidence.append(
@@ -92,6 +103,7 @@ class TableContainer(EvidenceContainer):
         super().__init__(TableEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
+        self.remove_NaNs()
         return [
             self.evidence_class(
                 self._data.name, self._data, self.labels, **self.metadata, **metadata

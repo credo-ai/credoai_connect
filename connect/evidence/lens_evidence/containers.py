@@ -14,6 +14,7 @@ class DataProfilerContainer(EvidenceContainer):
         super().__init__(DataProfilerEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
+        self.remove_NaNs()
         return [
             self.evidence_class(
                 self._data.get_description(), self.labels, **self.metadata, **metadata
@@ -37,6 +38,7 @@ class ModelProfilerContainer(EvidenceContainer):
         super().__init__(ModelProfilerEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
+        self.remove_NaNs()
         return [
             self.evidence_class(self._data, self.labels, **self.metadata, **metadata)
         ]
