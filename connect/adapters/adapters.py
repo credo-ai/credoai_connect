@@ -90,7 +90,7 @@ class Adapter:
             list of Evidence
         """
         meta = self._get_artifact_meta()
-        meta.update(metadata)
+        meta.update(metadata or {})
         if isinstance(metrics, dict):
             metrics = pd.DataFrame(metrics.items(), columns=["type", "value"])
         elif not isinstance(metrics, pd.DataFrame):
