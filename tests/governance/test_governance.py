@@ -2,11 +2,12 @@ import json
 import tempfile
 
 import pytest
+from pandas import DataFrame
+
 from connect.evidence.evidence import MetricEvidence, TableEvidence
 from connect.governance.credo_api import CredoApi
 from connect.governance.credo_api_client import CredoApiClient
 from connect.governance.governance import Governance
-from pandas import DataFrame
 
 USE_CASE_ID = "64YUaLWSviHgibJaRWr3ZE"
 POLICY_PACK_ID = "NYCE+1"

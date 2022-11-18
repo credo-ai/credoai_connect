@@ -6,10 +6,11 @@ import os
 from typing import Dict
 
 import requests
-from connect import __version__
-from connect.utils import global_logger, json_dumps
 from dotenv import dotenv_values
 from json_api_doc import deserialize, serialize
+
+from connect import __version__
+from connect.utils import global_logger, json_dumps
 
 CREDO_URL = "https://api.credo.ai"
 
@@ -131,7 +132,7 @@ class CredoApiClient:
             "Authorization": f"Bearer {access_token}",
             "accept": "application/vnd.api+json",
             "content-type": "application/vnd.api+json",
-            "X-Client-Name": "Credo AI Lens",
+            "X-Client-Name": "Credo AI Connect",
             "X-Client-Version": __version__,
         }
         self._session.headers.update(headers)

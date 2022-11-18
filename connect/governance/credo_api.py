@@ -3,8 +3,9 @@ Credo API functions
 """
 from typing import List
 
-from connect.utils import global_logger
 from requests.exceptions import HTTPError
+
+from connect.utils import global_logger
 
 from .credo_api_client import CredoApiClient
 
