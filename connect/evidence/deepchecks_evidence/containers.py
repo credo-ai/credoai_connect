@@ -23,7 +23,6 @@ class DeepchecksContainer(EvidenceContainer):
         self.name = name
 
     def to_evidence(self, **metadata):
-        self.remove_NaNs()
         checks_2_df = {"Check_Name": list(), "Status": list()}
         for check in self._data.get_not_passed_checks():
             checks_2_df["Check_Name"].append(check.header)
@@ -48,4 +47,12 @@ class DeepchecksContainer(EvidenceContainer):
             raise ValidationError("'data' must be a deepchecks.core.SuiteResult object")
 
     def _validate(self, data):
+        pass
+
+    def remove_NaNs(self):
+        """
+        No removal necessary
+        At this time we construct our own return dataframe with 2 columns: one for check name
+        and one for passing status. Neither will be NaN and therefore neither needs sanitization.
+        """
         pass

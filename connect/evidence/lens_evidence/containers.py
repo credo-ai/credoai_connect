@@ -14,7 +14,6 @@ class DataProfilerContainer(EvidenceContainer):
         super().__init__(DataProfilerEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
-        self.remove_NaNs()
         return [
             self.evidence_class(
                 self._data.get_description(), self.labels, **self.metadata, **metadata
@@ -29,6 +28,9 @@ class DataProfilerContainer(EvidenceContainer):
             raise ValidationError(
                 "'data' must be a pandas_profiling.profile_report.ProfileReport"
             )
+
+    def remove_NaNs(self):
+        pass
 
 
 class ModelProfilerContainer(EvidenceContainer):
@@ -51,3 +53,7 @@ class ModelProfilerContainer(EvidenceContainer):
             )
         if sum(data.index.isin(necessary_index)) != 3:
             raise ValidationError(f"Model profiler data must contain {necessary_index}")
+
+    def remove_NaNs(self):
+        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
+        return self

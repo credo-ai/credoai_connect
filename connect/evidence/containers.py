@@ -42,6 +42,7 @@ class EvidenceContainer(ABC):
         self._validate_inputs(data)
         self._validate(data)
         self._data = data
+        self.remove_NaNs()
         self.labels = labels
         self.metadata = metadata or {}
 
@@ -62,14 +63,14 @@ class EvidenceContainer(ABC):
     def _validate(self, data):
         pass
 
+    @abstractmethod
     def remove_NaNs(self):
         """
-        Converts NaNs in self._data to NoneType if self._data is of type pd.DataFrame
-            JSON files output as evidence for Governance platform cannot support NaNs
+        Converts NaNs in self._data to NoneType
+        Method of removal depends on underlying type of self._data
+        Force implementation in subclasses to ensure this sanitation happens
         """
-        if isinstance(self._data, pd.DataFrame):
-            self._data = self._data.fillna(np.nan).replace([np.nan], [None])
-        return self
+        pass
 
 
 class MetricContainer(EvidenceContainer):
@@ -79,7 +80,6 @@ class MetricContainer(EvidenceContainer):
         super().__init__(MetricEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
-        self.remove_NaNs()
         evidence = []
         for _, data in self._data.iterrows():
             evidence.append(
@@ -95,6 +95,10 @@ class MetricContainer(EvidenceContainer):
         if len(column_overlap) != len(required_columns):
             raise ValidationError(f"Must have columns: {required_columns}")
 
+    def remove_NaNs(self):
+        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
+        return self
+
 
 class TableContainer(EvidenceContainer):
     """Container for all Table type evidence"""
@@ -103,7 +107,6 @@ class TableContainer(EvidenceContainer):
         super().__init__(TableEvidence, data, labels, metadata)
 
     def to_evidence(self, **metadata):
-        self.remove_NaNs()
         return [
             self.evidence_class(
                 self._data.name, self._data, self.labels, **self.metadata, **metadata
@@ -115,3 +118,7 @@ class TableContainer(EvidenceContainer):
             data.name
         except AttributeError:
             raise ValidationError("DataFrame must have a 'name' attribute")
+
+    def remove_NaNs(self):
+        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
+        return self
