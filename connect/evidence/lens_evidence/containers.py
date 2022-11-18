@@ -4,9 +4,9 @@ from connect.utils import ValidationError
 from .evidence import DataProfilerEvidence, ModelProfilerEvidence
 from .utils import get_pandas_profile_type
 
-PandasProfileType = get_pandas_profile_type()
-
 import numpy as np
+
+PandasProfileType = get_pandas_profile_type()
 
 
 class DataProfilerContainer(EvidenceContainer):
@@ -32,7 +32,7 @@ class DataProfilerContainer(EvidenceContainer):
             )
 
     def remove_NaNs(self, data):
-        #TODO
+        # TODO
         pass
 
 
@@ -59,4 +59,3 @@ class ModelProfilerContainer(EvidenceContainer):
 
     def remove_NaNs(self, data):
         return data.fillna(np.nan).replace([np.nan], [None])
-        
