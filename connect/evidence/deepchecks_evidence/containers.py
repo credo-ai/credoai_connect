@@ -49,7 +49,7 @@ class DeepchecksContainer(EvidenceContainer):
     def _validate(self, data):
         pass
 
-    def remove_NaNs(self):
+    def remove_NaNs(self, data):
         """
         No removal necessary
         At this time we construct our own return dataframe with 2 columns: one for check name

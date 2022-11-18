@@ -6,6 +6,8 @@ from .utils import get_pandas_profile_type
 
 PandasProfileType = get_pandas_profile_type()
 
+import numpy as np
+
 
 class DataProfilerContainer(EvidenceContainer):
     """Container for all profiler type evidence"""
@@ -29,7 +31,8 @@ class DataProfilerContainer(EvidenceContainer):
                 "'data' must be a pandas_profiling.profile_report.ProfileReport"
             )
 
-    def remove_NaNs(self):
+    def remove_NaNs(self, data):
+        #TODO
         pass
 
 
@@ -54,6 +57,5 @@ class ModelProfilerContainer(EvidenceContainer):
         if sum(data.index.isin(necessary_index)) != 3:
             raise ValidationError(f"Model profiler data must contain {necessary_index}")
 
-    def remove_NaNs(self):
-        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
-        return self
+    def remove_NaNs(self, data):
+        return data.fillna(np.nan).replace([np.nan], [None])

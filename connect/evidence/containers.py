@@ -41,8 +41,7 @@ class EvidenceContainer(ABC):
         self.evidence_class = evidence_class
         self._validate_inputs(data)
         self._validate(data)
-        self._data = data
-        self.remove_NaNs()
+        self._data = self.remove_NaNs(data)
         self.labels = labels
         self.metadata = metadata or {}
 
@@ -95,9 +94,8 @@ class MetricContainer(EvidenceContainer):
         if len(column_overlap) != len(required_columns):
             raise ValidationError(f"Must have columns: {required_columns}")
 
-    def remove_NaNs(self):
-        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
-        return self
+    def remove_NaNs(self, data):
+        return data.fillna(np.nan).replace([np.nan], [None])
 
 
 class TableContainer(EvidenceContainer):
@@ -119,6 +117,5 @@ class TableContainer(EvidenceContainer):
         except AttributeError:
             raise ValidationError("DataFrame must have a 'name' attribute")
 
-    def remove_NaNs(self):
-        self._data = self._data.fillna(np.nan).replace([np.nan], [None])
-        return self
+    def remove_NaNs(data):
+        return data.fillna(np.nan).replace([np.nan], [None])
