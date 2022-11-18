@@ -59,3 +59,4 @@ class ModelProfilerContainer(EvidenceContainer):
 
     def remove_NaNs(self, data):
         return data.fillna(np.nan).replace([np.nan], [None])
+        
