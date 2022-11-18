@@ -1,4 +1,8 @@
-from connect.evidence import EvidenceContainer
+from connect.evidence import (
+    EvidenceContainer,
+    helper_df_remove_NaNs,
+    helper_dict_remove_NaNs,
+)
 from connect.utils import ValidationError
 
 from .evidence import DataProfilerEvidence, ModelProfilerEvidence
@@ -32,8 +36,7 @@ class DataProfilerContainer(EvidenceContainer):
             )
 
     def remove_NaNs(self, data):
-        # TODO
-        pass
+        return helper_dict_remove_NaNs(data)
 
 
 class ModelProfilerContainer(EvidenceContainer):
@@ -58,4 +61,4 @@ class ModelProfilerContainer(EvidenceContainer):
             raise ValidationError(f"Model profiler data must contain {necessary_index}")
 
     def remove_NaNs(self, data):
-        return data.fillna(np.nan).replace([np.nan], [None])
+        return helper_df_remove_NaNs(data)

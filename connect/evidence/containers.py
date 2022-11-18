@@ -8,10 +8,59 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 import numpy as np
+from copy import deepcopy
 
 from connect.utils import ValidationError
 
 from .evidence import MetricEvidence, TableEvidence
+
+
+def helper_df_remove_NaNs(data: pd.DataFrame):
+    # Assume DataFrame is well-formed: does not contain lists, DFs, or other complex objects
+    # returns copy of object --> no deep copy concern
+    return data.fillna(np.nan).replace([np.nan], [None])
+
+
+def helper_list_remove_NaNs(data: list):
+    return_list = deepcopy(data)
+    for idx, item in enumerate(return_list):
+        if isinstance(item, pd.DataFrame):
+            return_list[idx] = helper_df_remove_NaNs(item)
+        elif isinstance(item, np.array):
+            return_list[idx] = helper_array_remove_NaNs(item)
+        elif isinstance(item, dict):
+            return_list[idx] = helper_dict_remove_NaNs(item)
+        elif isinstance(item, list):
+            return_list[idx] = helper_list_remove_NaNs(item)
+        else:
+            # Assume no other iterable data types could be stored in list
+            if item is np.nan:
+                return_list[idx] = None
+    return return_list
+
+
+def helper_array_remove_NaNs(data: np.array):
+    # Assume array is well-formed: does not contain lists or other complex objects
+    # returns copy of object --> no deep copy concern
+    return np.where(np.isnan(data), None, data)
+
+
+def helper_dict_remove_NaNs(data: dict):
+    return_dict = deepcopy(data)
+    for key, val in return_dict.items():
+        if isinstance(val, pd.DataFrame):
+            return_dict[key] = helper_df_remove_NaNs(val)
+        elif isinstance(val, np.array):
+            return_dict[key] = helper_array_remove_NaNs(val)
+        elif isinstance(val, dict):
+            return_dict[key] = helper_dict_remove_NaNs(val)
+        elif isinstance(val, list):
+            return_dict[key] = helper_list_remove_NaNs(val)
+        else:
+            # Assume no other iterable data types could be stored in dictionary
+            if val is np.nan:
+                return_dict[key] = None
+    return return_dict
 
 
 class EvidenceContainer(ABC):
@@ -95,7 +144,7 @@ class MetricContainer(EvidenceContainer):
             raise ValidationError(f"Must have columns: {required_columns}")
 
     def remove_NaNs(self, data):
-        return data.fillna(np.nan).replace([np.nan], [None])
+        return helper_df_remove_NaNs(data)
 
 
 class TableContainer(EvidenceContainer):
@@ -118,4 +167,4 @@ class TableContainer(EvidenceContainer):
             raise ValidationError("DataFrame must have a 'name' attribute")
 
     def remove_NaNs(data):
-        return data.fillna(np.nan).replace([np.nan], [None])
+        return helper_df_remove_NaNs(data)
