@@ -26,7 +26,7 @@ def helper_list_remove_NaNs(data: list):
     for idx, item in enumerate(return_list):
         if isinstance(item, pd.DataFrame):
             return_list[idx] = helper_df_remove_NaNs(item)
-        elif isinstance(item, np.array):
+        elif isinstance(item, np.ndarray):
             return_list[idx] = helper_array_remove_NaNs(item)
         elif isinstance(item, dict):
             return_list[idx] = helper_dict_remove_NaNs(item)
@@ -39,7 +39,7 @@ def helper_list_remove_NaNs(data: list):
     return return_list
 
 
-def helper_array_remove_NaNs(data: np.array):
+def helper_array_remove_NaNs(data: np.ndarray):
     # Assume array is well-formed: does not contain lists or other complex objects
     # returns copy of object --> no deep copy concern
     return np.where(np.isnan(data), None, data)
@@ -50,7 +50,7 @@ def helper_dict_remove_NaNs(data: dict):
     for key, val in return_dict.items():
         if isinstance(val, pd.DataFrame):
             return_dict[key] = helper_df_remove_NaNs(val)
-        elif isinstance(val, np.array):
+        elif isinstance(val, np.ndarray):
             return_dict[key] = helper_array_remove_NaNs(val)
         elif isinstance(val, dict):
             return_dict[key] = helper_dict_remove_NaNs(val)
@@ -112,7 +112,7 @@ class EvidenceContainer(ABC):
         pass
 
     @abstractmethod
-    def remove_NaNs(self):
+    def remove_NaNs(self, data):
         """
         Converts NaNs in self._data to NoneType
         Method of removal depends on underlying type of self._data
@@ -166,5 +166,8 @@ class TableContainer(EvidenceContainer):
         except AttributeError:
             raise ValidationError("DataFrame must have a 'name' attribute")
 
-    def remove_NaNs(data):
-        return helper_df_remove_NaNs(data)
+    def remove_NaNs(self, data):
+        data_name = data.name
+        cleaned = helper_df_remove_NaNs(data)
+        cleaned.name = data_name
+        return cleaned

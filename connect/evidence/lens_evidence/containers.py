@@ -21,9 +21,7 @@ class DataProfilerContainer(EvidenceContainer):
 
     def to_evidence(self, **metadata):
         return [
-            self.evidence_class(
-                self._data.get_description(), self.labels, **self.metadata, **metadata
-            )
+            self.evidence_class(self._data, self.labels, **self.metadata, **metadata)
         ]
 
     def _validate(self, data):
@@ -36,7 +34,7 @@ class DataProfilerContainer(EvidenceContainer):
             )
 
     def remove_NaNs(self, data):
-        return helper_dict_remove_NaNs(data)
+        return helper_dict_remove_NaNs(data.get_description())
 
 
 class ModelProfilerContainer(EvidenceContainer):
