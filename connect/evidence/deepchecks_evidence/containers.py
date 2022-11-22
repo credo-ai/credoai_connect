@@ -55,4 +55,4 @@ class DeepchecksContainer(EvidenceContainer):
         At this time we construct our own return dataframe with 2 columns: one for check name
         and one for passing status. Neither will be NaN and therefore neither needs sanitization.
         """
-        pass
+        return data
