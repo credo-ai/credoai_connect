@@ -26,11 +26,7 @@ def helper_list_remove_NaNs(data: list):
     for idx, item in enumerate(return_list):
         if isinstance(item, pd.DataFrame):
             return_list[idx] = helper_df_remove_NaNs(item)
-<<<<<<< HEAD
         elif isinstance(item, np.ndarray):
-=======
-        elif isinstance(item, np.array):
->>>>>>> 36904ca (Recursive helper for converting NaNs in dictionary to NoneType)
             return_list[idx] = helper_array_remove_NaNs(item)
         elif isinstance(item, dict):
             return_list[idx] = helper_dict_remove_NaNs(item)
@@ -43,11 +39,7 @@ def helper_list_remove_NaNs(data: list):
     return return_list
 
 
-<<<<<<< HEAD
 def helper_array_remove_NaNs(data: np.ndarray):
-=======
-def helper_array_remove_NaNs(data: np.array):
->>>>>>> 36904ca (Recursive helper for converting NaNs in dictionary to NoneType)
     # Assume array is well-formed: does not contain lists or other complex objects
     # returns copy of object --> no deep copy concern
     return np.where(np.isnan(data), None, data)
@@ -58,11 +50,7 @@ def helper_dict_remove_NaNs(data: dict):
     for key, val in return_dict.items():
         if isinstance(val, pd.DataFrame):
             return_dict[key] = helper_df_remove_NaNs(val)
-<<<<<<< HEAD
         elif isinstance(val, np.ndarray):
-=======
-        elif isinstance(val, np.array):
->>>>>>> 36904ca (Recursive helper for converting NaNs in dictionary to NoneType)
             return_dict[key] = helper_array_remove_NaNs(val)
         elif isinstance(val, dict):
             return_dict[key] = helper_dict_remove_NaNs(val)
@@ -156,7 +144,6 @@ class MetricContainer(EvidenceContainer):
             raise ValidationError(
                 f"Metrics dataframe must have columns: {required_columns}"
             )
-
     def remove_NaNs(self, data):
         return helper_df_remove_NaNs(data)
 
