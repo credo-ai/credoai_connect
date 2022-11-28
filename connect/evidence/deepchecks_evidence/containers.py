@@ -22,15 +22,19 @@ class DeepchecksContainer(EvidenceContainer):
         super().__init__(DeepchecksEvidence, data, labels, metadata)
         self.name = name
 
+    @property
+    def scrubbed_data(self):
+        return self._data
+
     def to_evidence(self, **metadata):
         checks_2_df = {"Check_Name": list(), "Status": list()}
-        for check in self._data.get_not_passed_checks():
+        for check in self.scrubbed_data.get_not_passed_checks():
             checks_2_df["Check_Name"].append(check.header)
             checks_2_df["Status"].append("Not Passed")
-        for check in self._data.get_passed_checks():
+        for check in self.scrubbed_data.get_passed_checks():
             checks_2_df["Check_Name"].append(check.header)
             checks_2_df["Status"].append("Passed")
-        for check in self._data.get_not_ran_checks():
+        for check in self.scrubbed_data.get_not_ran_checks():
             checks_2_df["Check_Name"].append(check.header)
             checks_2_df["Status"].append("Not Run")
 

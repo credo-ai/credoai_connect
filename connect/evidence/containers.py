@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from connect.utils import ValidationError
+from connect.utils import Scrubber, ValidationError
 
 from .evidence import MetricEvidence, TableEvidence
 
@@ -48,6 +48,10 @@ class EvidenceContainer(ABC):
     def data(self):
         return self._data
 
+    @property
+    def scrubbed_data(self):
+        return Scrubber.remove_NaNs(self._data)
+
     @abstractmethod
     def to_evidence(self):
         pass
@@ -70,7 +74,7 @@ class MetricContainer(EvidenceContainer):
 
     def to_evidence(self, **metadata):
         evidence = []
-        for _, data in self._data.iterrows():
+        for _, data in self.scrubbed_data.iterrows():
             evidence.append(
                 self.evidence_class(
                     additional_labels=self.labels, **data, **self.metadata, **metadata
@@ -96,7 +100,11 @@ class TableContainer(EvidenceContainer):
     def to_evidence(self, **metadata):
         return [
             self.evidence_class(
-                self._data.name, self._data, self.labels, **self.metadata, **metadata
+                self.scrubbed_data.name,
+                self.scrubbed_data,
+                self.labels,
+                **self.metadata,
+                **metadata,
             )
         ]
 

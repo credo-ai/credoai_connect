@@ -1,5 +1,7 @@
+import numpy as np
+
 from connect.evidence import EvidenceContainer
-from connect.utils import ValidationError
+from connect.utils import Scrubber, ValidationError
 
 from .evidence import DataProfilerEvidence, ModelProfilerEvidence
 from .utils import get_pandas_profile_type
@@ -13,10 +15,14 @@ class DataProfilerContainer(EvidenceContainer):
     def __init__(self, data, labels: dict = None, metadata: dict = None):
         super().__init__(DataProfilerEvidence, data, labels, metadata)
 
+    @property
+    def scrubbed_data(self):
+        return Scrubber.remove_NaNs(self.data.get_description())
+
     def to_evidence(self, **metadata):
         return [
             self.evidence_class(
-                self._data.get_description(), self.labels, **self.metadata, **metadata
+                self.scrubbed_data, self.labels, **self.metadata, **metadata
             )
         ]
 
@@ -38,7 +44,9 @@ class ModelProfilerContainer(EvidenceContainer):
 
     def to_evidence(self, **metadata):
         return [
-            self.evidence_class(self._data, self.labels, **self.metadata, **metadata)
+            self.evidence_class(
+                self.scrubbed_data, self.labels, **self.metadata, **metadata
+            )
         ]
 
     def _validate(self, data):
