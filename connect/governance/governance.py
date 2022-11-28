@@ -341,7 +341,7 @@ class Governance:
             self._use_case_id, self._prepare_export_data()
         )
 
-        # wait unitil uploading is finished
+        # wait until uploading is finished
         progress = 1
         while assessment["result"] == "in_progress":
             time.sleep(1)
