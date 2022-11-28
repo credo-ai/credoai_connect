@@ -12,6 +12,8 @@ import numpy as np
 
 PandasProfileType = get_pandas_profile_type()
 
+import numpy as np
+
 
 class DataProfilerContainer(EvidenceContainer):
     """Container for all profiler type evidence"""
