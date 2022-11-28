@@ -144,6 +144,7 @@ class MetricContainer(EvidenceContainer):
             raise ValidationError(
                 f"Metrics dataframe must have columns: {required_columns}"
             )
+
     def remove_NaNs(self, data):
         return helper_df_remove_NaNs(data)
 
