@@ -80,4 +80,4 @@ class TestCredoApi:
         id = "wotgqfrrnxYDJSrvhHFW3E"
         api.get_assessment(use_case_id, id)
 
-        client.get.assert_called_with(f"use_cases/{use_case_id}/assessments/{id}") 
+        client.get.assert_called_with(f"use_cases/{use_case_id}/assessments/{id}")

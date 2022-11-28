@@ -108,7 +108,7 @@ class CredoApi:
 
     def create_assessment(self, use_case_id: str, data: dict):
         """
-        Upload evidences to API server. API server creates an assessment and returns it. 
+        Upload evidences to API server. API server creates an assessment and returns it.
         API server does the uploading process in the background, and updates assessment with the progress and result.
 
         Parameters
@@ -139,7 +139,7 @@ class CredoApi:
         Parameters
         ----------
         use_case_id : str
-            use case id        
+            use case id
         id : str
             assessment id
 
@@ -156,7 +156,7 @@ class CredoApi:
         Raises
         ------
         HTTPError
-            When API request returns error        
+            When API request returns error
         """
         path = f"use_cases/{use_case_id}/assessments/{id}"
         return self._client.get(path)
