@@ -36,11 +36,7 @@ class DataProfilerContainer(EvidenceContainer):
             )
 
     def remove_NaNs(self, data):
-<<<<<<< HEAD
         return helper_dict_remove_NaNs(data.get_description())
-=======
-        return helper_dict_remove_NaNs(data)
->>>>>>> 36904ca (Recursive helper for converting NaNs in dictionary to NoneType)
 
 
 class ModelProfilerContainer(EvidenceContainer):
