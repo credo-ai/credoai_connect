@@ -7,60 +7,10 @@ suitable evidences.
 from abc import ABC, abstractmethod
 
 import pandas as pd
-import numpy as np
-from copy import deepcopy
 
-from connect.utils import ValidationError
+from connect.utils import Scrubber, ValidationError
 
 from .evidence import MetricEvidence, TableEvidence
-
-
-def helper_df_remove_NaNs(data: pd.DataFrame):
-    # Assume DataFrame is well-formed: does not contain lists, DFs, or other complex objects
-    # returns copy of object --> no deep copy concern
-    return data.fillna(np.nan).replace([np.nan], [None])
-
-
-def helper_list_remove_NaNs(data: list):
-    return_list = deepcopy(data)
-    for idx, item in enumerate(return_list):
-        if isinstance(item, pd.DataFrame):
-            return_list[idx] = helper_df_remove_NaNs(item)
-        elif isinstance(item, np.ndarray):
-            return_list[idx] = helper_array_remove_NaNs(item)
-        elif isinstance(item, dict):
-            return_list[idx] = helper_dict_remove_NaNs(item)
-        elif isinstance(item, list):
-            return_list[idx] = helper_list_remove_NaNs(item)
-        else:
-            # Assume no other iterable data types could be stored in list
-            if item is np.nan:
-                return_list[idx] = None
-    return return_list
-
-
-def helper_array_remove_NaNs(data: np.ndarray):
-    # Assume array is well-formed: does not contain lists or other complex objects
-    # returns copy of object --> no deep copy concern
-    return np.where(np.isnan(data), None, data)
-
-
-def helper_dict_remove_NaNs(data: dict):
-    return_dict = deepcopy(data)
-    for key, val in return_dict.items():
-        if isinstance(val, pd.DataFrame):
-            return_dict[key] = helper_df_remove_NaNs(val)
-        elif isinstance(val, np.ndarray):
-            return_dict[key] = helper_array_remove_NaNs(val)
-        elif isinstance(val, dict):
-            return_dict[key] = helper_dict_remove_NaNs(val)
-        elif isinstance(val, list):
-            return_dict[key] = helper_list_remove_NaNs(val)
-        else:
-            # Assume no other iterable data types could be stored in dictionary
-            if val is np.nan:
-                return_dict[key] = None
-    return return_dict
 
 
 class EvidenceContainer(ABC):
@@ -90,13 +40,17 @@ class EvidenceContainer(ABC):
         self.evidence_class = evidence_class
         self._validate_inputs(data)
         self._validate(data)
-        self._data = self.remove_NaNs(data)
+        self._data = data
         self.labels = labels
         self.metadata = metadata or {}
 
     @property
     def data(self):
         return self._data
+
+    @property
+    def scrubbed_data(self):
+        return Scrubber.remove_NaNs(self._data)
 
     @abstractmethod
     def to_evidence(self):
@@ -111,15 +65,6 @@ class EvidenceContainer(ABC):
     def _validate(self, data):
         pass
 
-    @abstractmethod
-    def remove_NaNs(self, data):
-        """
-        Converts NaNs in self._data to NoneType
-        Method of removal depends on underlying type of self._data
-        Force implementation in subclasses to ensure this sanitation happens
-        """
-        pass
-
 
 class MetricContainer(EvidenceContainer):
     """Containers for all Metric type evidence"""
@@ -129,7 +74,7 @@ class MetricContainer(EvidenceContainer):
 
     def to_evidence(self, **metadata):
         evidence = []
-        for _, data in self._data.iterrows():
+        for _, data in self.scrubbed_data.iterrows():
             evidence.append(
                 self.evidence_class(
                     additional_labels=self.labels, **data, **self.metadata, **metadata
@@ -145,9 +90,6 @@ class MetricContainer(EvidenceContainer):
                 f"Metrics dataframe must have columns: {required_columns}"
             )
 
-    def remove_NaNs(self, data):
-        return helper_df_remove_NaNs(data)
-
 
 class TableContainer(EvidenceContainer):
     """Container for all Table type evidence"""
@@ -158,7 +100,11 @@ class TableContainer(EvidenceContainer):
     def to_evidence(self, **metadata):
         return [
             self.evidence_class(
-                self._data.name, self._data, self.labels, **self.metadata, **metadata
+                self.scrubbed_data.name,
+                self.scrubbed_data,
+                self.labels,
+                **self.metadata,
+                **metadata,
             )
         ]
 
@@ -167,9 +113,3 @@ class TableContainer(EvidenceContainer):
             data.name
         except AttributeError:
             raise ValidationError("DataFrame must have a 'name' attribute")
-
-    def remove_NaNs(self, data):
-        data_name = data.name
-        cleaned = helper_df_remove_NaNs(data)
-        cleaned.name = data_name
-        return cleaned
