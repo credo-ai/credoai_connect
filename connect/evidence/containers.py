@@ -168,5 +168,8 @@ class TableContainer(EvidenceContainer):
         except AttributeError:
             raise ValidationError("DataFrame must have a 'name' attribute")
 
-    def remove_NaNs(data):
-        return helper_df_remove_NaNs(data)
+    def remove_NaNs(self, data):
+        data_name = data.name
+        cleaned = helper_df_remove_NaNs(data)
+        cleaned.name = data_name
+        return cleaned
