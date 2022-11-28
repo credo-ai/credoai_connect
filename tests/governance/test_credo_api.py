@@ -1,6 +1,7 @@
 import pytest
-from credoai.governance.credo_api import CredoApi
-from credoai.governance.credo_api_client import CredoApiClient
+
+from connect.governance.credo_api import CredoApi
+from connect.governance.credo_api_client import CredoApiClient
 
 
 class TestCredoApi:
@@ -73,3 +74,10 @@ class TestCredoApi:
         api.create_assessment(use_case_id, body)
 
         client.post.assert_called_with(f"use_cases/{use_case_id}/assessments", body)
+
+    def test_get_assessment(self, api, client):
+        use_case_id = "64YUaLWSviHgibJaRWr3ZE"
+        id = "wotgqfrrnxYDJSrvhHFW3E"
+        api.get_assessment(use_case_id, id)
+
+        client.get.assert_called_with(f"use_cases/{use_case_id}/assessments/{id}")

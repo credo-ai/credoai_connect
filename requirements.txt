@@ -1,0 +1,5 @@
+json-api-doc>=0.15.0
+python-dotenv>=0.19.2
+numpy >= 1.22.0
+pandas >= 1.4.1
+

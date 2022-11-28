@@ -7,8 +7,9 @@ from abc import ABC, abstractproperty
 from datetime import datetime
 from typing import Tuple
 
-from connect.utils import ValidationError
 from pandas import DataFrame, Series
+
+from connect.utils import ValidationError
 
 
 class Evidence(ABC):

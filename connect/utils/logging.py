@@ -67,7 +67,7 @@ class Logger:
         self.logger.addHandler(file_handler)
 
 
-def setup_logger(name="lens", path=None, record_stream=False, logging_level="INFO"):
+def setup_logger(name="connect", path=None, record_stream=False, logging_level="INFO"):
     tmp = Logger(name, path, record_stream, logging_level)
     return tmp.logger, tmp.stream
 

@@ -3,12 +3,15 @@ Credo Governance
 """
 
 import json
+from pprint import pprint
 from typing import List, Optional, Union
+import time
+import sys
+from json_api_doc import deserialize, serialize
 
 from connect import __version__
 from connect.evidence import Evidence, EvidenceRequirement
 from connect.utils import check_subset, global_logger, json_dumps, wrap_list
-from json_api_doc import deserialize, serialize
 
 from .credo_api import CredoApi
 from .credo_api_client import CredoApiClient
@@ -75,6 +78,108 @@ class Governance:
             client = CredoApiClient(config_path=config_path)
 
         self._api = CredoApi(client=client)
+
+    @property
+    def model(self):
+        return self._model
+
+    @property
+    def requirements_satisified(self):
+        return self._match_requirements()
+
+    @property
+    def registered(self):
+        return bool(self._plan)
+
+    def add_evidence(self, evidences: Union[Evidence, List[Evidence]]):
+        """
+        Add evidences
+        """
+        self._evidences += wrap_list(evidences)
+
+    def clear_evidence(self):
+        self.set_evidence([])
+
+    def export(self, filename=None):
+        """
+        Upload evidences to CredoAI Governance(Report) App
+
+        Returns
+        -------
+        True
+            When uploading is successful with all evidence
+        False
+            When it is not registered yet, or evidence is insufficient
+        """
+        if not self._validate_export():
+            return False
+        to_return = self._match_requirements()
+
+        if filename is None:
+            self._api_export()
+        else:
+            self._file_export(filename)
+
+        if to_return:
+            export_status = "All requirements were matched."
+        else:
+            export_status = "Partial match of requirements."
+
+        global_logger.info(export_status)
+        return to_return
+
+    def get_evidence(self, verbose=False):
+        """
+        Returns evidence that has been send to the governance object
+
+        Parameters
+        ----------
+        verbose : bool, False
+            if True, print out human-readable evidence requirements
+        """
+        if verbose:
+            self._print_evidence(self._evidences)
+        return self._evidences
+
+    def get_evidence_requirements(self, tags: dict = None, verbose=False):
+        """
+        Returns evidence requirements. Each evidence requirement can have optional tags
+        (a dictionary). Only returns requirements that have tags that match the model
+        (if provided), which are tags with the same tags as the model, or no tags.
+
+        Parameters
+        ----------
+        tags : dict, optional
+            Tags to subset evidence requirements. If a model has been set, will default
+            to the model's tags. Evidence requirements will be returned that have no
+            tags or have the same tag as provided.
+        verbose : bool, False
+            if True, print out human-readable evidence requirements
+
+        Returns
+        -------
+        List[EvidenceRequirement]
+        """
+        if tags is None:
+            tags = self.get_model_tags()
+
+        reqs = [
+            e for e in self._evidence_requirements if (not e.tags or e.tags == tags)
+        ]
+        if verbose:
+            self._print_evidence(reqs)
+        return reqs
+
+    def get_evidence_tags(self):
+        """Return the unique tags used for all evidence requirements"""
+        return self._unique_tags
+
+    def get_model_tags(self):
+        """Get the tags for the associated model"""
+        if self._model:
+            return self._model["tags"]
+        else:
+            return None
 
     def register(
         self,
@@ -170,96 +275,38 @@ class Governance:
 
             self.clear_evidence()
 
-    def __parse_json_api(self, json_str):
-        return deserialize(json.loads(json_str))
+    def set_artifacts(
+        self,
+        model: str,
+        model_tags: dict,
+        training_dataset: str = None,
+        assessment_dataset: str = None,
+    ):
+        """Sets up internal knowledge of model and datasets to send to Credo AI Platform
 
-    @property
-    def registered(self):
-        return bool(self._plan)
-
-    def add_evidence(self, evidences: Union[Evidence, List[Evidence]]):
-        """
-        Add evidences
-        """
-        self._evidences += wrap_list(evidences)
-
-    def clear_evidence(self):
-        self.set_evidence([])
-
-    def export(self, filename=None):
-        """
-        Upload evidences to CredoAI Governance(Report) App
-
-        Returns
-        -------
-        True
-            When uploading is successful with all evidence
-        False
-            When it is not registered yet, or evidence is insufficient
-        """
-        if not self._validate_export():
-            return False
-        to_return = self._match_requirements()
-
-        if filename is None:
-            self._api_export()
-        else:
-            self._file_export(filename)
-
-        if to_return:
-            export_status = "All requirements were matched."
-        else:
-            export_status = "Partial match of requirements."
-
-        global_logger.info(export_status)
-        return to_return
-
-    def get_evidence_requirements(self, tags: dict = None):
-        """
-        Returns evidence requirements. Each evidence requirement can have optional tags
-        (a dictionary). Only returns requirements that have tags that match the model
-        (if provided), which are tags with the same tags as the model, or no tags.
 
         Parameters
         ----------
-        tags : dict, optional
-            Tags to subset evidence requirements. If a model has been set, will default
-            to the model's tags. Evidence requirements will be returned that have no
-            tags or have the same tag as provided.
-
-        Returns
-        -------
-        List[EvidenceRequirement]
+        model : str
+            model name
+        model_tags : dict
+            List of key:value pairs specifying model tags. These are typically
+            used to pair the model with tagged governance requirements,
+            which are defined in a Governance instance's assessment_plan
+        training_dataset : str, optional
+            training dataset name, by default None
+        assessment_dataset : str, optional
+            assessment dataset name, by default None
         """
-        if tags is None:
-            tags = self.get_model_tags()
 
-        reqs = [
-            e for e in self._evidence_requirements if (not e.tags or e.tags == tags)
-        ]
-        return reqs
-
-    def get_evidence_tags(self):
-        """Return the unique tags used for all evidence requirements"""
-        return self._unique_tags
-
-    def get_model_tags(self):
-        """Get the tags for the associated model"""
-        if self._model:
-            return self._model["tags"]
-        else:
-            return None
-
-    def set_artifacts(self, model, training_dataset=None, assessment_dataset=None):
-        """Sets up internal knowledge of model and datasets to send to Credo AI Platform"""
         global_logger.info(
-            f"Adding model ({model.name}) to governance. Model has tags: {model.tags}"
+            f"Adding model ({model}) to governance. Model has tags: {model_tags}"
         )
-        prepared_model = {"name": model.name, "tags": model.tags}
+        prepared_model = {"name": model, "tags": model_tags}
         if training_dataset:
-            prepared_model["training_dataset_name"] = training_dataset.name
+            prepared_model["training_dataset_name"] = training_dataset
         if assessment_dataset:
-            prepared_model["assessment_dataset_name"] = assessment_dataset.name
+            prepared_model["assessment_dataset_name"] = assessment_dataset
         self._model = prepared_model
 
     def set_evidence(self, evidences: List[Evidence]):
@@ -289,7 +336,34 @@ class Governance:
         global_logger.info(
             f"Uploading {len(self._evidences)} evidences.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id}"
         )
-        self._api.create_assessment(self._use_case_id, self._prepare_export_data())
+
+        assessment = self._api.create_assessment(
+            self._use_case_id, self._prepare_export_data()
+        )
+
+        # wait until uploading is finished
+        progress = 1
+        while assessment["result"] == "in_progress":
+            time.sleep(1)
+            sys.stdout.write("\r")
+            sys.stdout.write("." * progress)
+            sys.stdout.flush()
+            progress = progress + 1
+            assessment = self._api.get_assessment(self._use_case_id, assessment["id"])
+
+        sys.stdout.write("\r")
+
+        # print the result
+        self._assessment = assessment
+        if assessment["result"] == "success":
+            evidences = assessment.get("details", {}).get("evidences", [])
+            duration = assessment.get("duration", 0) / 1000
+            global_logger.info(
+                f"{len(evidences)} evidences were successfuly uploaded, took {duration} ms"
+            )
+        else:
+            error = assessment["error"]
+            global_logger.error(f"Error in uploading evidences : {error}")
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
@@ -310,7 +384,7 @@ class Governance:
             f"Saving {len(self._evidences)} evidences to {filename}.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id} "
         )
         data = self._prepare_export_data()
-        meta = {"client": "Credo AI Lens", "version": __version__}
+        meta = {"client": "Credo AI Connect", "version": __version__}
         data = json_dumps(serialize(data=data, meta=meta))
         with open(filename, "w") as f:
             f.write(data)
@@ -327,6 +401,9 @@ class Governance:
                 matching_evidence[0].label = label
         return not bool(missing)
 
+    def __parse_json_api(self, json_str):
+        return deserialize(json.loads(json_str))
+
     def _prepare_export_data(self):
         evidences = self._prepare_evidences()
         data = {
@@ -340,6 +417,11 @@ class Governance:
     def _prepare_evidences(self):
         evidences = list(map(lambda e: e.struct(), self._evidences))
         return evidences
+
+    def _print_evidence(self, evidence):
+        for i, label in enumerate([e.label for e in evidence]):
+            print(f"\nEvidence Requirement {i}:")
+            pprint(label)
 
     def _validate_export(self):
         if not self.registered:

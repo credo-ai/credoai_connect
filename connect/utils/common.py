@@ -115,7 +115,7 @@ class CredoEncoder(json.JSONEncoder):
 
 def json_dumps(obj):
     """Custom json dumps with encoder"""
-    return json.dumps(obj, cls=CredoEncoder, indent=2)
+    return json.dumps(obj, cls=CredoEncoder, indent=2, default=str)
 
 
 def dict_hash(dictionary: Dict[str, Any]) -> str:

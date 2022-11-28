@@ -2,7 +2,8 @@
 #
 # Copyright (C) 2021-2021 Credo AI
 import setuptools
-from credoai import __version__
+
+from connect import __version__
 
 DESCRIPTION = "Credo AI Connect: Integration point for Credo AI Governance Platform"
 DISTNAME = "credoai-connect"
@@ -23,13 +24,15 @@ with open("requirements.txt") as f:
     INSTALL_REQUIRES = [line.strip() for line in f]
 
 # Fetch dev requirements files (including documentation)
+with open("requirements-dev.txt") as f:
+    dev_requirements = [line.strip() for line in f]
+
 with open("docs/requirements.txt") as f:
     doc_requirements = [line.strip() for line in f]
 
-dev_requirements = doc_requirements
+dev_requirements += doc_requirements
 
 EXTRAS_REQUIRES = {"dev": dev_requirements}
-
 
 CLASSIFIERS = [
     "Intended Audience :: Information Technology",

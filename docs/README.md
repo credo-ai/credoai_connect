@@ -30,7 +30,7 @@ For more info, follow instructions [here](https://packaging.python.org/en/stable
 ## Installating from test server
 To install from the test PyPi server (useful before full deployment) run:
 ```
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple credoai-lens
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple credoai-connect
 ```
 
 # Upload to Pypi
