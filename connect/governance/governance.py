@@ -3,10 +3,11 @@ Credo Governance
 """
 
 import json
+import sys
+import time
 from pprint import pprint
 from typing import List, Optional, Union
-import time
-import sys
+
 from json_api_doc import deserialize, serialize
 
 from connect import __version__
@@ -371,10 +372,15 @@ class Governance:
             if check_subset(label, e.label):
                 matching_evidence.append(e)
         if not matching_evidence:
+            global_logger.info(f"Missing required evidence with label ({label}).")
             return False
         if len(matching_evidence) > 1:
+            stringified_evidence = [str(e.label) for e in matching_evidence]
+            nl = "\n\t\t"
             global_logger.error(
-                "Multiple evidence labels were found matching one requirement"
+                "Multiple evidence labels were found matching one requirement.\n"
+                + f"\tRequirement: {label}\n"
+                + f"\tEvidences: {nl}{nl.join(stringified_evidence)}"
             )
             return False
         return matching_evidence
@@ -396,7 +402,6 @@ class Governance:
             matching_evidence = self._check_inclusion(label, self._evidences)
             if not matching_evidence:
                 missing.append(label)
-                global_logger.info(f"Missing required evidence with label ({label}).")
             else:
                 matching_evidence[0].label = label
         return not bool(missing)
