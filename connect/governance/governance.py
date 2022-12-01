@@ -351,7 +351,9 @@ class Governance:
                 sys.stdout.write("." * progress)
                 sys.stdout.flush()
                 progress = progress + 1
-                assessment = self._api.get_assessment(self._use_case_id, assessment["id"])
+                assessment = self._api.get_assessment(
+                    self._use_case_id, assessment["id"]
+                )
 
             sys.stdout.write("\r")
 
