@@ -342,29 +342,30 @@ class Governance:
             self._use_case_id, self._prepare_export_data()
         )
 
-        # wait until uploading is finished
-        progress = 1
-        while assessment["result"] == "in_progress":
-            time.sleep(1)
+        if assessment:
+            # wait until uploading is finished
+            progress = 1
+            while assessment["result"] == "in_progress":
+                time.sleep(1)
+                sys.stdout.write("\r")
+                sys.stdout.write("." * progress)
+                sys.stdout.flush()
+                progress = progress + 1
+                assessment = self._api.get_assessment(self._use_case_id, assessment["id"])
+
             sys.stdout.write("\r")
-            sys.stdout.write("." * progress)
-            sys.stdout.flush()
-            progress = progress + 1
-            assessment = self._api.get_assessment(self._use_case_id, assessment["id"])
 
-        sys.stdout.write("\r")
-
-        # print the result
-        self._assessment = assessment
-        if assessment["result"] == "success":
-            evidences = assessment.get("details", {}).get("evidences", [])
-            duration = assessment.get("duration", 0) / 1000
-            global_logger.info(
-                f"{len(evidences)} evidences were successfuly uploaded, took {duration} ms"
-            )
-        else:
-            error = assessment["error"]
-            global_logger.error(f"Error in uploading evidences : {error}")
+            # print the result
+            self._assessment = assessment
+            if assessment["result"] == "success":
+                evidences = assessment.get("details", {}).get("evidences", [])
+                duration = assessment.get("duration", 0) / 1000
+                global_logger.info(
+                    f"{len(evidences)} evidences were successfuly uploaded, took {duration} ms"
+                )
+            else:
+                error = assessment["error"]
+                global_logger.error(f"Error in uploading evidences : {error}")
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
