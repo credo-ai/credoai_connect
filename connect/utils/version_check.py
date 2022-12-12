@@ -4,8 +4,12 @@ import connect
 from connect.utils import global_logger
 
 
+def get_version():
+    return connect.__version__
+
+
 def validate_version():
-    current_version = connect.__version__
+    current_version = get_version()
 
     package = "credoai-connect"
     response = requests.get(f"https://pypi.org/pypi/{package}/json")

@@ -38,9 +38,10 @@ class Adapter:
     def metrics_to_governance(
         self,
         metrics: dict,
+        source: str,
         labels: dict = None,
         metadata: dict = None,
-        overwrite_governance: bool = False,
+        overwrite_governance: bool = True,
     ):
         """
         Packages metrics as evidence and sends them to governance
@@ -49,14 +50,17 @@ class Adapter:
         ---------
         metrics : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
+        source : str
+            Label for what generated the metrics
         labels : dict
-            Additional labels to pass to underlying evidence
+            Additional key/value pairs to act as labels for the evidence
         metadata : dict
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
             evidence or not, default False.
         """
+        labels = {**(labels or {}), "source": source}
         evidence = self._metrics_to_evidence(metrics, labels, metadata)
 
         if overwrite_governance:
