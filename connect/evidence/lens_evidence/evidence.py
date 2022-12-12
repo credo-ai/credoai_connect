@@ -38,15 +38,17 @@ class ModelProfilerEvidence(Evidence):
     @property
     def data(self):
         parameters = self._data.loc["parameters"]
-        features_names = self._data.loc["feature_names"]
         remaining_info = self._data[
             ~self._data.index.isin(["parameters", "feature_names", "model_name"])
         ]
-        return {
+        output = {
             "info": remaining_info.to_dict(),
             "parameters": parameters,
-            "features_names": features_names,
         }
+        if "feature_names" in self._data.index:
+            output["features_names"] = self._data.loc["feature_names"]
+
+        return output
 
     @property
     def base_label(self):
