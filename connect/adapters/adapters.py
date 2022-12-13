@@ -3,7 +3,7 @@ from typing import Optional
 
 import pandas as pd
 
-from connect.evidence import MetricContainer, TableContainer
+from connect.evidence import EvidenceContainer, MetricContainer, TableContainer
 from connect.governance import Governance
 from connect.utils import ValidationError, wrap_list
 
@@ -131,10 +131,13 @@ class Adapter:
             When adding evidence to a Governance object, whether to overwrite existing
             evidence or not, default False.
         """
-        if evidence_fun is None:
-            evidence_fun = partial(self._to_evidence, container_class=evidence_fun)
+        try:
+            if issubclass(evidence_fun, EvidenceContainer):
+                evidence_fun = partial(self._to_evidence, container_class=evidence_fun)
+        except TypeError:
+            pass
         labels = {**(labels or {}), "source": source}
-        evidence = evidence_fun(data, labels, metadata)
+        evidence = evidence_fun(data=data, labels=labels, metadata=metadata)
         if overwrite_governance:
             self.governance.set_evidence(evidence)
         else:
@@ -148,12 +151,12 @@ class Adapter:
             del model["tags"]
         return model or {}
 
-    def _metrics_to_evidence(self, metrics, labels=None, metadata=None):
+    def _metrics_to_evidence(self, data, labels=None, metadata=None):
         """Converts a dictionary of metrics to evidence
 
         Parameters
         ----------
-        metrics : dict or pd.DataFrame
+        data : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
         labels : dict
             Additional labels to pass to underlying evidence
@@ -165,11 +168,11 @@ class Adapter:
         List
             list of Evidence
         """
-        if isinstance(metrics, dict):
-            metrics = pd.DataFrame(metrics.items(), columns=["type", "value"])
-        elif not isinstance(metrics, pd.DataFrame):
+        if isinstance(data, dict):
+            data = pd.DataFrame(data.items(), columns=["type", "value"])
+        elif not isinstance(data, pd.DataFrame):
             raise ValidationError("Metrics must be a dictionary or a dataframe")
-        return self._to_evidence(MetricContainer, metrics, labels, metadata)
+        return self._to_evidence(MetricContainer, data, labels, metadata)
 
     def _to_evidence(self, container_class, data, labels, metadata):
         meta = self._get_artifact_meta()
