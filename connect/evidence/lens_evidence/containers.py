@@ -50,10 +50,10 @@ class ModelProfilerContainer(EvidenceContainer):
         ]
 
     def _validate(self, data):
-        necessary_index = ["parameters", "feature_names", "model_name"]
+        necessary_index = ["parameters", "model_name"]
         if list(data.columns) != ["results"]:
             raise ValidationError(
                 "Model profiler data must only have one column: 'results'"
             )
-        if sum(data.index.isin(necessary_index)) != 3:
+        if sum(data.index.isin(necessary_index)) != 2:
             raise ValidationError(f"Model profiler data must contain {necessary_index}")

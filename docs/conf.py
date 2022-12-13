@@ -63,14 +63,6 @@ set_type_checking_flag = True
 nbsphinx_allow_errors = True  # Continue through Jupyter errors
 nbsphinx_execute = "never"  # do not execute jupyter notebooks
 
-autodoc_mock_imports = [
-    "dotenv",
-    "json_api_doc",
-    "numpy",
-    "pandas",
-]
-
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

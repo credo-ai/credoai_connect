@@ -3,15 +3,21 @@ Credo Governance
 """
 
 import json
+import sys
+import time
 from pprint import pprint
 from typing import List, Optional, Union
-import time
-import sys
+
 from json_api_doc import deserialize, serialize
 
-from connect import __version__
 from connect.evidence import Evidence, EvidenceRequirement
-from connect.utils import check_subset, global_logger, json_dumps, wrap_list
+from connect.utils import (
+    check_subset,
+    get_version,
+    global_logger,
+    json_dumps,
+    wrap_list,
+)
 
 from .credo_api import CredoApi
 from .credo_api_client import CredoApiClient
@@ -170,7 +176,7 @@ class Governance:
             self._print_evidence(reqs)
         return reqs
 
-    def get_evidence_tags(self):
+    def get_requirement_tags(self):
         """Return the unique tags used for all evidence requirements"""
         return self._unique_tags
 
@@ -317,7 +323,7 @@ class Governance:
 
     def tag_model(self, model):
         """Interactive utility to tag a model tags from assessment plan"""
-        tags = self.get_evidence_tags()
+        tags = self.get_requirement_tags()
         print(f"Select tag from assessment plan to associated with model:")
         print("0: No tags")
         for number, tag in enumerate(tags):
@@ -341,29 +347,32 @@ class Governance:
             self._use_case_id, self._prepare_export_data()
         )
 
-        # wait until uploading is finished
-        progress = 1
-        while assessment["result"] == "in_progress":
-            time.sleep(1)
+        if assessment:
+            # wait until uploading is finished
+            progress = 1
+            while assessment["result"] == "in_progress":
+                time.sleep(1)
+                sys.stdout.write("\r")
+                sys.stdout.write("." * progress)
+                sys.stdout.flush()
+                progress = progress + 1
+                assessment = self._api.get_assessment(
+                    self._use_case_id, assessment["id"]
+                )
+
             sys.stdout.write("\r")
-            sys.stdout.write("." * progress)
-            sys.stdout.flush()
-            progress = progress + 1
-            assessment = self._api.get_assessment(self._use_case_id, assessment["id"])
 
-        sys.stdout.write("\r")
-
-        # print the result
-        self._assessment = assessment
-        if assessment["result"] == "success":
-            evidences = assessment.get("details", {}).get("evidences", [])
-            duration = assessment.get("duration", 0) / 1000
-            global_logger.info(
-                f"{len(evidences)} evidences were successfuly uploaded, took {duration} ms"
-            )
-        else:
-            error = assessment["error"]
-            global_logger.error(f"Error in uploading evidences : {error}")
+            # print the result
+            self._assessment = assessment
+            if assessment["result"] == "success":
+                evidences = assessment.get("details", {}).get("evidences", [])
+                duration = assessment.get("duration", 0) / 1000
+                global_logger.info(
+                    f"{len(evidences)} evidences were successfuly uploaded, took {duration} ms"
+                )
+            else:
+                error = assessment["error"]
+                global_logger.error(f"Error in uploading evidences : {error}")
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
@@ -371,10 +380,15 @@ class Governance:
             if check_subset(label, e.label):
                 matching_evidence.append(e)
         if not matching_evidence:
+            global_logger.info(f"Missing required evidence with label ({label}).")
             return False
         if len(matching_evidence) > 1:
+            stringified_evidence = [str(e.label) for e in matching_evidence]
+            nl = "\n\t\t"
             global_logger.error(
-                "Multiple evidence labels were found matching one requirement"
+                "Multiple evidence labels were found matching one requirement.\n"
+                + f"\tRequirement: {label}\n"
+                + f"\tEvidences: {nl}{nl.join(stringified_evidence)}"
             )
             return False
         return matching_evidence
@@ -384,7 +398,7 @@ class Governance:
             f"Saving {len(self._evidences)} evidences to {filename}.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id} "
         )
         data = self._prepare_export_data()
-        meta = {"client": "Credo AI Connect", "version": __version__}
+        meta = {"client": "Credo AI Connect", "version": get_version()}
         data = json_dumps(serialize(data=data, meta=meta))
         with open(filename, "w") as f:
             f.write(data)
@@ -396,7 +410,6 @@ class Governance:
             matching_evidence = self._check_inclusion(label, self._evidences)
             if not matching_evidence:
                 missing.append(label)
-                global_logger.info(f"Missing required evidence with label ({label}).")
             else:
                 matching_evidence[0].label = label
         return not bool(missing)
