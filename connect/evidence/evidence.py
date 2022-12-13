@@ -140,8 +140,11 @@ class TableEvidence(Evidence):
 
     @property
     def data(self):
+        columns = [
+            {"value": k, "type": self._transform_type(v)} for k, v in self._data.dtypes.iteritems()
+        ]
         return {
-            "columns": self._data.columns.tolist(),
+            "columns": columns,
             "value": self._data.values.tolist(),
         }
 
@@ -149,3 +152,13 @@ class TableEvidence(Evidence):
     def base_label(self):
         label = {"table_name": self.name}
         return label
+    def _transform_type(self, pandas_type):
+        lookup = {
+            'int64': 'number',
+            'float64': 'number',
+            'object': 'string',
+            'category': 'string',
+            'datetime64': 'datetime'
+        }
+        final_type = str(pandas_type)
+        return lookup.get(final_type, final_type)                    
