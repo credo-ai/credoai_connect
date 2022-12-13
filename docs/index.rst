@@ -4,6 +4,7 @@
 
    Home page <self>
    Setup <setup>
+   Get Started <notebooks/quickstart>
    API reference <_autosummary/connect>
 
 
