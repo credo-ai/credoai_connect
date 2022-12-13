@@ -27,4 +27,6 @@ would like to install requirements for testing and formatting, you'll
 have to install the dev requirements.
 
 ::
+   
    pip install credoai-connect[dev]
+

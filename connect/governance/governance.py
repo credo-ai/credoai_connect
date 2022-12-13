@@ -10,9 +10,14 @@ from typing import List, Optional, Union
 
 from json_api_doc import deserialize, serialize
 
-from connect import __version__
 from connect.evidence import Evidence, EvidenceRequirement
-from connect.utils import check_subset, global_logger, json_dumps, wrap_list
+from connect.utils import (
+    check_subset,
+    get_version,
+    global_logger,
+    json_dumps,
+    wrap_list,
+)
 
 from .credo_api import CredoApi
 from .credo_api_client import CredoApiClient
@@ -171,7 +176,7 @@ class Governance:
             self._print_evidence(reqs)
         return reqs
 
-    def get_evidence_tags(self):
+    def get_requirement_tags(self):
         """Return the unique tags used for all evidence requirements"""
         return self._unique_tags
 
@@ -318,7 +323,7 @@ class Governance:
 
     def tag_model(self, model):
         """Interactive utility to tag a model tags from assessment plan"""
-        tags = self.get_evidence_tags()
+        tags = self.get_requirement_tags()
         print(f"Select tag from assessment plan to associated with model:")
         print("0: No tags")
         for number, tag in enumerate(tags):
@@ -393,7 +398,7 @@ class Governance:
             f"Saving {len(self._evidences)} evidences to {filename}.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id} "
         )
         data = self._prepare_export_data()
-        meta = {"client": "Credo AI Connect", "version": __version__}
+        meta = {"client": "Credo AI Connect", "version": get_version()}
         data = json_dumps(serialize(data=data, meta=meta))
         with open(filename, "w") as f:
             f.write(data)

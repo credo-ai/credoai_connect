@@ -1,10 +1,11 @@
+from functools import partial
 from typing import Optional
 
 import pandas as pd
 
-from connect.evidence import MetricContainer
+from connect.evidence import EvidenceContainer, MetricContainer, TableContainer
 from connect.governance import Governance
-from connect.utils import ValidationError
+from connect.utils import ValidationError, wrap_list
 
 
 class Adapter:
@@ -38,9 +39,10 @@ class Adapter:
     def metrics_to_governance(
         self,
         metrics: dict,
+        source: str,
         labels: dict = None,
         metadata: dict = None,
-        overwrite_governance: bool = False,
+        overwrite_governance: bool = True,
     ):
         """
         Packages metrics as evidence and sends them to governance
@@ -49,16 +51,93 @@ class Adapter:
         ---------
         metrics : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
+        source : str
+            Label for what generated the metrics
         labels : dict
-            Additional labels to pass to underlying evidence
+            Additional key/value pairs to act as labels for the evidence
         metadata : dict
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
             evidence or not, default False.
         """
-        evidence = self._metrics_to_evidence(metrics, labels, metadata)
+        self._evidence_to_governance(
+            self._metrics_to_evidence,
+            metrics,
+            source,
+            labels,
+            metadata,
+            overwrite_governance,
+        )
 
+    def table_to_governance(
+        self,
+        data: dict,
+        source: str,
+        labels: dict = None,
+        metadata: dict = None,
+        overwrite_governance: bool = True,
+    ):
+        """
+        Packages metrics as evidence and sends them to governance
+
+        Parameters
+        ---------
+        data: pd.DataFrame
+            Dataframe to pass to evidence_fun. The DataFrame must have a "name" attribute
+        source : str
+            Label for what generated the table
+        labels : dict
+            Additional key/value pairs to act as labels for the evidence
+        metadata : dict
+            Metadata to pass to underlying evidence
+        overwrite_governance : bool
+            When adding evidence to a Governance object, whether to overwrite existing
+            evidence or not, default False.
+        evidence_fun : callable
+            Function to pass data, labels and metadata. The function should return a list of
+            evidence. Default: self._to_evidence
+        """
+        self._evidence_to_governance(
+            TableContainer, data, source, labels, metadata, overwrite_governance
+        )
+
+    def _evidence_to_governance(
+        self,
+        evidence_fun,
+        data,
+        source,
+        labels,
+        metadata,
+        overwrite_governance=True,
+    ):
+        """
+        Packages data as evidence and sends to governance
+
+        Parameters
+        ---------
+        evidence_fun : callable or Container
+            Function to pass data, labels and metadata. The function should return a list of
+            evidence. If a Container, use self._to_evidence with the specified container
+        data
+            data to pass to evidence_fun
+        source : str
+            Label for what generated the table
+        labels : dict
+            Additional key/value pairs to act as labels for the evidence
+        metadata : dict
+            Metadata to pass to underlying evidence
+        overwrite_governance : bool
+            When adding evidence to a Governance object, whether to overwrite existing
+            evidence or not, default False.
+        """
+        try:
+            if issubclass(evidence_fun, EvidenceContainer):
+                evidence_fun = partial(self._to_evidence, container_class=evidence_fun)
+        except TypeError:
+            pass
+        labels = {**(labels or {}), "source": source}
+        evidence = evidence_fun(data=data, labels=labels, metadata=metadata)
         if overwrite_governance:
             self.governance.set_evidence(evidence)
         else:
@@ -72,12 +151,12 @@ class Adapter:
             del model["tags"]
         return model or {}
 
-    def _metrics_to_evidence(self, metrics, labels=None, metadata=None):
+    def _metrics_to_evidence(self, data, labels=None, metadata=None):
         """Converts a dictionary of metrics to evidence
 
         Parameters
         ----------
-        metrics : dict or pd.DataFrame
+        data : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
         labels : dict
             Additional labels to pass to underlying evidence
@@ -89,11 +168,14 @@ class Adapter:
         List
             list of Evidence
         """
+        if isinstance(data, dict):
+            data = pd.DataFrame(data.items(), columns=["type", "value"])
+        elif not isinstance(data, pd.DataFrame):
+            raise ValidationError("Metrics must be a dictionary or a dataframe")
+        return self._to_evidence(MetricContainer, data, labels, metadata)
+
+    def _to_evidence(self, container_class, data, labels, metadata):
         meta = self._get_artifact_meta()
         meta.update(metadata or {})
-        if isinstance(metrics, dict):
-            metrics = pd.DataFrame(metrics.items(), columns=["type", "value"])
-        elif not isinstance(metrics, pd.DataFrame):
-            raise ValidationError("Metrics must be a dictionary or a dataframe")
-        container = MetricContainer(metrics, labels, meta)
-        return container.to_evidence()
+        container = container_class(data, labels, meta)
+        return wrap_list(container.to_evidence())
