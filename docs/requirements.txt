@@ -2,7 +2,6 @@
 ipykernel
 furo==2022.3.4
 nbsphinx==0.8.7
-pandas >= 1.4.1
 pandoc==1.1.0
 prompt-toolkit<3.0.0
 pydata-sphinx-theme==0.6.3
