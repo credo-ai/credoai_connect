@@ -169,9 +169,7 @@ class Governance:
         if tags is None:
             tags = self.get_model_tags()
 
-        reqs = [
-            e for e in self._evidence_requirements if (not e.tags or e.tags == tags)
-        ]
+        reqs = [e for e in self._evidence_requirements if check_subset(e.tags, tags)]
         if verbose:
             self._print_evidence(reqs)
         return reqs
