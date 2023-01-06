@@ -183,7 +183,7 @@ class Governance:
         if self._model:
             return self._model["tags"]
         else:
-            return None
+            return {}
 
     def register(
         self,
