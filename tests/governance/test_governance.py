@@ -147,7 +147,7 @@ class TestGovernance:
         assert "metric" == req.evidence_type
         assert {"metric_type": "accuracy_score"} == req.label
 
-    def test_register_with_assessment_plan_file(self, gov):
+    def test_register_with_assessment_plan_file(self, gov, plan_file_mock):
 
         gov.register(assessment_plan_file="filename")
 
