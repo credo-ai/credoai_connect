@@ -52,7 +52,7 @@ class Adapter:
         metrics : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
         source : str
-            Label for what generated the metrics
+            Label for what generated the metrics. Added to metadata
         labels : dict
             Additional key/value pairs to act as labels for the evidence
         metadata : dict
@@ -122,7 +122,7 @@ class Adapter:
         data
             data to pass to evidence_fun
         source : str
-            Label for what generated the table. Added to metadata
+            Label for what generated the evidence. Added to metadata
         labels : dict
             Additional key/value pairs to act as labels for the evidence
         metadata : dict
