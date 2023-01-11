@@ -150,8 +150,15 @@ class Governance:
     def get_evidence_requirements(self, tags: dict = None, verbose=False):
         """
         Returns evidence requirements. Each evidence requirement can have optional tags
-        (a dictionary). Only returns requirements that have tags that match the model
-        (if provided), which are tags with the same tags as the model, or no tags.
+        (a dictionary). Returns requirements whose tags are a subset of the model's tags.
+
+        For example, imagine a model has two tags: {'risk': 'high', 'model_type': 'binary'}
+        and three requirements with the following tags:
+            req1 = {}
+            req2 = {'risk': 'high'}
+            req3 = {'risk': 'high', 'model_type': 'binary'}
+        In this case all requirements will apply. If the model risk was was 'low' only req_1 would
+        apply. If the 'model_type' was not 'binary' then only req1 and req2 would apply.
 
         Parameters
         ----------
@@ -169,9 +176,7 @@ class Governance:
         if tags is None:
             tags = self.get_model_tags()
 
-        reqs = [
-            e for e in self._evidence_requirements if (not e.tags or e.tags == tags)
-        ]
+        reqs = [e for e in self._evidence_requirements if check_subset(e.tags, tags)]
         if verbose:
             self._print_evidence(reqs)
         return reqs
@@ -185,7 +190,7 @@ class Governance:
         if self._model:
             return self._model["tags"]
         else:
-            return None
+            return {}
 
     def register(
         self,

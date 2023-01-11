@@ -19,6 +19,16 @@ EVIDENCE_REQUIREMENTS = [
         "label": {"table_name": "disaggregated_performance"},
         "sensitive_features": ["profession", "gender"],
     },
+    {
+        "evidence_type": "metric",
+        "label": {"metric_type": "precision"},
+        "tags": {"risk": "high"},
+    },
+    {
+        "evidence_type": "metric",
+        "label": {"metric_type": "recall"},
+        "tags": {"risk": "high", "model_type": "binary"},
+    },
 ]
 ASSESSMENT_PLAN_URL = f"http://api.credo.ai/api/v2/credoai/use_cases/${USE_CASE_ID}/assessment_plans/{POLICY_PACK_ID}"
 ASSESSMENT_PLAN = {
@@ -204,3 +214,12 @@ class TestGovernance:
         with tempfile.TemporaryDirectory() as tempDir:
             filename = f"{tempDir}/assessment.json"
             assert False == gov.export(filename)
+
+    def test_get_evidence_requirements(self, gov):
+        gov.register(assessment_plan=ASSESSMENT_PLAN_JSON_STR)
+        gov.set_artifacts(model="test", model_tags={"risk": "high"})
+        assert 4 == len(gov.get_evidence_requirements())
+        gov.set_artifacts(
+            model="test", model_tags={"risk": "high", "model_type": "binary"}
+        )
+        assert 5 == len(gov.get_evidence_requirements())
