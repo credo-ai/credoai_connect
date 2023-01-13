@@ -1,13 +1,12 @@
 """
 Wrappers formatting results of evaluator runs for the Credo AI Platform
 """
-import json
 import pprint
 from abc import ABC, abstractproperty
 from datetime import datetime
 from typing import Tuple
 
-from pandas import DataFrame, Series
+from pandas import DataFrame
 
 from connect.utils import ValidationError
 
@@ -116,6 +115,60 @@ class MetricEvidence(Evidence):
     def _validate(self):
         if self.confidence_interval and not self.confidence_level:
             raise ValidationError
+
+
+class StatisticTestEvidence(Evidence):
+    """
+    Evidence for Statistical Test:value result type
+
+    Parameters
+    ----------
+    statistic_type : string
+        Short identifier for statistical test.
+    value : float
+        Test calculation result
+    p_value : float
+        p_value associated to the calculation
+    significance_threshold : float
+        p_value threshold to consider test significant, e.g., 0.01
+    additional_labels: dict, opional
+        Extra info to be added to the label section.
+    metadata : dict, optional
+        Arbitrary keyword arguments to append to metric as metadata. These will be
+        displayed in the governance app
+    """
+
+    def __init__(
+        self,
+        statistic_type: str,
+        test_statistic: float,
+        significance_threshold: float,
+        p_value: float,
+        additional_labels=None,
+        **metadata
+    ):
+        self.statistic_type = statistic_type
+        self.test_statistic = test_statistic
+        self.significance_threshold = significance_threshold
+        self.p_value = p_value
+        self.significant = (
+            True if self.p_value <= self.significance_threshold else False
+        )
+        super().__init__("statisticTest", additional_labels, **metadata)
+
+    @property
+    def data(self):
+        return {
+            "test_statistic": self.test_statistic,
+            "significance_threshold": self.significance_threshold,
+            "p_value": self.p_value,
+            "significant": self.significant,
+        }
+
+    @property
+    def base_label(self):
+        label = {"statistic_type": self.statistic_type}
+        return label
 
 
 class TableEvidence(Evidence):

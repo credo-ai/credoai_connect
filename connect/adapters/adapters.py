@@ -52,7 +52,7 @@ class Adapter:
         metrics : dict or pd.DataFrame
             Dictionary of metrics. Form: {metric_type: value, ...}
         source : str
-            Label for what generated the metrics
+            Label for what generated the metrics. Added to metadata
         labels : dict
             Additional key/value pairs to act as labels for the evidence
         metadata : dict
@@ -86,7 +86,7 @@ class Adapter:
         data: pd.DataFrame
             Dataframe to pass to evidence_fun. The DataFrame must have a "name" attribute
         source : str
-            Label for what generated the table
+            Label for what generated the table. Added to metadata
         labels : dict
             Additional key/value pairs to act as labels for the evidence
         metadata : dict
@@ -122,7 +122,7 @@ class Adapter:
         data
             data to pass to evidence_fun
         source : str
-            Label for what generated the table
+            Label for what generated the evidence. Added to metadata
         labels : dict
             Additional key/value pairs to act as labels for the evidence
         metadata : dict
@@ -136,7 +136,7 @@ class Adapter:
                 evidence_fun = partial(self._to_evidence, container_class=evidence_fun)
         except TypeError:
             pass
-        labels = {**(labels or {}), "source": source}
+        metadata = {**(metadata or {}), "source": source}
         evidence = evidence_fun(data=data, labels=labels, metadata=metadata)
         if overwrite_governance:
             self.governance.set_evidence(evidence)

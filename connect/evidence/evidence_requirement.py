@@ -8,9 +8,9 @@ class EvidenceRequirement(ABC):
         data: dict,
     ):
         self._evidence_type: str = data.get("evidence_type")
-        self._label: dict = data.get("label")
+        self._label: dict = data.get("label", {})
         self._sensitive_features: List[str] = data.get("sensitive_features", [])
-        self._tags: dict = data.get("tags")
+        self._tags: dict = data.get("tags", {})
 
     def __str__(self) -> str:
         return f"{self.evidence_type}-EvidenceRequirement.label-{self.label}"
