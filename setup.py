@@ -3,8 +3,8 @@
 # Copyright (C) 2021-2021 Credo AI
 import setuptools
 
-from connect import __version__
-
+# get version
+exec(open("connect/_version.py").read())
 DESCRIPTION = "Credo AI Connect: Integration point for Credo AI Governance Platform"
 DISTNAME = "credoai-connect"
 MAINTAINER = "Ian Eisenberg"
