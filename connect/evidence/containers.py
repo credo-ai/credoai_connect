@@ -10,7 +10,7 @@ import pandas as pd
 
 from connect.utils import Scrubber, ValidationError
 
-from .evidence import MetricEvidence, TableEvidence
+from .evidence import MetricEvidence, StatisticTestEvidence, TableEvidence
 
 
 class EvidenceContainer(ABC):
@@ -84,6 +84,36 @@ class MetricContainer(EvidenceContainer):
 
     def _validate(self, data):
         required_columns = {"type", "value"}
+        column_overlap = data.columns.intersection(required_columns)
+        if len(column_overlap) != len(required_columns):
+            raise ValidationError(
+                f"Metrics dataframe must have columns: {required_columns}"
+            )
+
+
+class StatisticTestContainer(EvidenceContainer):
+    """Containers for all Metric type evidence"""
+
+    def __init__(self, data: pd.DataFrame, labels: dict = None, metadata: dict = None):
+        super().__init__(StatisticTestEvidence, data, labels, metadata)
+
+    def to_evidence(self, **metadata):
+        evidence = []
+        for _, data in self.scrubbed_data.iterrows():
+            evidence.append(
+                self.evidence_class(
+                    additional_labels=self.labels, **data, **self.metadata, **metadata
+                )
+            )
+        return evidence
+
+    def _validate(self, data):
+        required_columns = {
+            "test_statistic",
+            "value",
+            "significance_threshold",
+            "p_value",
+        }
         column_overlap = data.columns.intersection(required_columns)
         if len(column_overlap) != len(required_columns):
             raise ValidationError(

@@ -118,6 +118,58 @@ class MetricEvidence(Evidence):
             raise ValidationError
 
 
+class StatisticTestEvidence(Evidence):
+    """
+    Evidence for Metric:value result type
+
+    Parameters
+    ----------
+    type : string
+        short identifier for metric.
+    value : float
+        metric value
+    confidence_interval : [float, float]
+        [lower, upper] confidence interval
+    confidence_level : int
+        Level of confidence for the confidence interval (e.g., 95%)
+    metadata : dict, optional
+        Arbitrary keyword arguments to append to metric as metadata. These will be
+        displayed in the governance app
+    """
+
+    def __init__(
+        self,
+        test_statistic: str,
+        value: float,
+        significance_threshold: float,
+        p_value: float,
+        additional_labels=None,
+        **metadata
+    ):
+        self.test_statistic = test_statistic
+        self.value = value
+        self.significance_threshold = significance_threshold
+        self.p_value = p_value
+        self.significant = (
+            True if self.p_value <= self.significance_threshold else False
+        )
+        super().__init__("statisticTest", additional_labels, **metadata)
+
+    @property
+    def data(self):
+        return {
+            "value": self.value,
+            "significance_threshold": self.significance_threshold,
+            "p_value": self.p_value,
+            "significant": self.significant,
+        }
+
+    @property
+    def base_label(self):
+        label = {"statistic_type": self.test_statistic}
+        return label
+
+
 class TableEvidence(Evidence):
     """
     Evidence for tabular data
