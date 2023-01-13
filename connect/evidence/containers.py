@@ -92,7 +92,7 @@ class MetricContainer(EvidenceContainer):
 
 
 class StatisticTestContainer(EvidenceContainer):
-    """Containers for all Metric type evidence"""
+    """Containers for all Statistic Test type evidence"""
 
     def __init__(self, data: pd.DataFrame, labels: dict = None, metadata: dict = None):
         super().__init__(StatisticTestEvidence, data, labels, metadata)

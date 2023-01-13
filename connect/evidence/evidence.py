@@ -1,13 +1,12 @@
 """
 Wrappers formatting results of evaluator runs for the Credo AI Platform
 """
-import json
 import pprint
 from abc import ABC, abstractproperty
 from datetime import datetime
 from typing import Tuple
 
-from pandas import DataFrame, Series
+from pandas import DataFrame
 
 from connect.utils import ValidationError
 
@@ -120,18 +119,20 @@ class MetricEvidence(Evidence):
 
 class StatisticTestEvidence(Evidence):
     """
-    Evidence for Metric:value result type
+    Evidence for Statistical Test:value result type
 
     Parameters
     ----------
-    type : string
-        short identifier for metric.
+    test_statistic : string
+        Short identifier for statistical test.
     value : float
-        metric value
-    confidence_interval : [float, float]
-        [lower, upper] confidence interval
-    confidence_level : int
-        Level of confidence for the confidence interval (e.g., 95%)
+        Test calculation result
+    p_value : float
+        p_value associated to the calculation
+    significance_threshold : float
+        p_value threshold to consider test significant, e.g., 0.01
+    additional_labels: dict, opional
+        Extra info to be added to the label section.
     metadata : dict, optional
         Arbitrary keyword arguments to append to metric as metadata. These will be
         displayed in the governance app
