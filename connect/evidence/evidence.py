@@ -123,7 +123,7 @@ class StatisticTestEvidence(Evidence):
 
     Parameters
     ----------
-    test_statistic : string
+    statistic_type : string
         Short identifier for statistical test.
     value : float
         Test calculation result
@@ -140,15 +140,15 @@ class StatisticTestEvidence(Evidence):
 
     def __init__(
         self,
-        test_statistic: str,
-        value: float,
+        statistic_type: str,
+        test_statistic: float,
         significance_threshold: float,
         p_value: float,
         additional_labels=None,
         **metadata
     ):
+        self.statistic_type = statistic_type
         self.test_statistic = test_statistic
-        self.value = value
         self.significance_threshold = significance_threshold
         self.p_value = p_value
         self.significant = (
@@ -159,7 +159,7 @@ class StatisticTestEvidence(Evidence):
     @property
     def data(self):
         return {
-            "value": self.value,
+            "test_statistic": self.test_statistic,
             "significance_threshold": self.significance_threshold,
             "p_value": self.p_value,
             "significant": self.significant,
@@ -167,7 +167,7 @@ class StatisticTestEvidence(Evidence):
 
     @property
     def base_label(self):
-        label = {"statistic_type": self.test_statistic}
+        label = {"statistic_type": self.statistic_type}
         return label
 
 

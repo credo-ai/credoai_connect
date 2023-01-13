@@ -109,8 +109,8 @@ class StatisticTestContainer(EvidenceContainer):
 
     def _validate(self, data):
         required_columns = {
+            "statistic_type",
             "test_statistic",
-            "value",
             "significance_threshold",
             "p_value",
         }
