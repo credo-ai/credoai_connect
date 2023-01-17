@@ -348,6 +348,9 @@ class Governance:
             f"Uploading {len(self._evidences)} evidences.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id}"
         )
 
+        # update when model tags are changed
+        self._update_model_link()
+
         assessment = self._api.create_assessment(
             self._use_case_id, self._prepare_export_data()
         )
@@ -378,6 +381,30 @@ class Governance:
             else:
                 error = assessment["error"]
                 global_logger.error(f"Error in uploading evidences : {error}")
+
+    def _update_model_link(self):
+        # find model_link with model name from assessment plan
+        model_link = self._find_model_link_from_assessment_plan()
+        if model_link is None:
+            return
+
+        model_tags = self.model.get("tags", {}) or {}
+        model_link_tags = model_link.get("tags", {}) or {}
+        # Update model tags if changed
+        if model_link_tags != model_tags:
+            global_logger.info(f"Model tags are changed from {model_link_tags} to {model_tags}. Updating model tags...")
+            self._api.update_use_case_model_link_tags(self._use_case_id, model_link["id"], model_tags)
+
+    def _find_model_link_from_assessment_plan(self):
+        model_name = self.model.get("name", None)
+        if model_name is None: 
+            return None 
+
+        for link in self._plan.get("model_links", []):
+            if link["model_name"] == model_name:
+                return link
+                
+        return None              
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
