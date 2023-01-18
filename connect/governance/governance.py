@@ -328,6 +328,7 @@ class Governance:
             prepared_model["assessment_dataset_name"] = assessment_dataset
         self._model = prepared_model
 
+        self._print_model_changes_log()
 
     def set_evidence(self, evidences: List[Evidence]):
         """
@@ -411,7 +412,28 @@ class Governance:
             global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}. Updating model version...")
             self._api.update_use_case_model_link_version(self._use_case_id, plan_model["id"], model_version)
 
+    def _print_model_changes_log(self):
+        # find model_link with model name from assessment plan
+        plan_model = self._find_plan_model()
+        if plan_model is None:
+            return
 
+        model_tags = self.model.get("tags", {}) or {}
+        plan_model_tags = plan_model.get("tags", {}) or {}
+        # Update model tags if changed
+        if plan_model_tags != model_tags:
+            global_logger.info(f"Model tags are changed from {plan_model_tags} to {model_tags}")
+
+        model_version = self.model.get("version", None)
+        plan_model_version = plan_model.get("version", None)
+        # Update model version if changed
+        if plan_model_version != model_version:
+            global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}")
+
+        if plan_model_tags != model_tags or plan_model_version != model_version:
+            global_logger.info(f"You can apply changes to governance by calling the following method")
+            global_logger.info(f"  gov.update_model_link()")
+            global_logger.info(f"Or calling gov.export() method will automatically apply changes to governance")
 
     def _find_plan_model(self):
         model_name = self.model.get("name", None)
