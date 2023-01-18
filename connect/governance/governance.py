@@ -297,7 +297,7 @@ class Governance:
         self,
         model: str,
         model_tags: dict,
-        model_version: str,
+        model_version: str = None,
         training_dataset: str = None,
         assessment_dataset: str = None,
     ):
@@ -458,8 +458,14 @@ class Governance:
             )
 
     def _find_plan_model(self):
+        if self.model is None:
+            return None
+
         model_name = self.model.get("name", None)
         if model_name is None:
+            return None
+
+        if self._plan is None:
             return None
 
         for link in self._plan.get("model_links", []):
