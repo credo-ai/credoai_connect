@@ -359,7 +359,7 @@ class Governance:
         )
 
         # update when model tags are changed
-        self._update_model_link()
+        self.apply_model_changes()
 
         assessment = self._api.create_assessment(
             self._use_case_id, self._prepare_export_data()
@@ -392,7 +392,11 @@ class Governance:
                 error = assessment["error"]
                 global_logger.error(f"Error in uploading evidences : {error}")
 
-    def _update_model_link(self):
+    def apply_model_changes(self):
+        """
+        Update model's tags and version to governance if changed
+        """
+
         # find model_link with model name from assessment plan
         plan_model = self._find_plan_model()
         if plan_model is None:
@@ -425,14 +429,14 @@ class Governance:
             global_logger.info(f"Model tags are changed from {plan_model_tags} to {model_tags}")
 
         model_version = self.model.get("version", None)
-        plan_model_version = plan_model.get("version", None)
+        plan_model_version = plan_model.get("model_version", None)
         # Update model version if changed
         if plan_model_version != model_version:
             global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}")
 
         if plan_model_tags != model_tags or plan_model_version != model_version:
             global_logger.info(f"You can apply changes to governance by calling the following method")
-            global_logger.info(f"  gov.update_model_link()")
+            global_logger.info(f"  gov.apply_model_changes()")
             global_logger.info(f"Or calling gov.export() method will automatically apply changes to governance")
 
     def _find_plan_model(self):
