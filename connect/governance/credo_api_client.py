@@ -152,7 +152,9 @@ class CredoApiClient:
             data = response.json()
             if data:
                 for error in data.get("errors", []):
-                    global_logger.error(f"Error happened from [{method.upper()}] {endpoint} : Message={error['title']}, Error Detail={error['detail']}")
+                    global_logger.error(
+                        f"Error happened from [{method.upper()}] {endpoint} : Message={error['title']}, Error Detail={error['detail']}"
+                    )
 
         response.raise_for_status()
 

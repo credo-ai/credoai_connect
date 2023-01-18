@@ -406,16 +406,24 @@ class Governance:
         plan_model_tags = plan_model.get("tags", {}) or {}
         # Update model tags if changed
         if plan_model_tags != model_tags:
-            global_logger.info(f"Model tags are changed from {plan_model_tags} to {model_tags}. Updating model tags...")
-            self._api.update_use_case_model_link_tags(self._use_case_id, plan_model["id"], model_tags)
+            global_logger.info(
+                f"Model tags are changed from {plan_model_tags} to {model_tags}. Updating model tags..."
+            )
+            self._api.update_use_case_model_link_tags(
+                self._use_case_id, plan_model["id"], model_tags
+            )
             plan_model["tags"] = model_tags
 
         model_version = self.model.get("version", None)
         plan_model_version = plan_model.get("model_version", None)
         # Update model version if changed
         if plan_model_version != model_version:
-            global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}. Updating model version...")
-            self._api.update_use_case_model_link_version(self._use_case_id, plan_model["id"], model_version)
+            global_logger.info(
+                f"Model version is changed from {plan_model_version} to {model_version}. Updating model version..."
+            )
+            self._api.update_use_case_model_link_version(
+                self._use_case_id, plan_model["id"], model_version
+            )
             plan_model["model_version"] = model_version
 
     def _print_model_changes_log(self):
@@ -428,29 +436,37 @@ class Governance:
         plan_model_tags = plan_model.get("tags", {}) or {}
         # Update model tags if changed
         if plan_model_tags != model_tags:
-            global_logger.info(f"Model tags are changed from {plan_model_tags} to {model_tags}")
+            global_logger.info(
+                f"Model tags are changed from {plan_model_tags} to {model_tags}"
+            )
 
         model_version = self.model.get("version", None)
         plan_model_version = plan_model.get("model_version", None)
         # Update model version if changed
         if plan_model_version != model_version:
-            global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}")
+            global_logger.info(
+                f"Model version is changed from {plan_model_version} to {model_version}"
+            )
 
         if plan_model_tags != model_tags or plan_model_version != model_version:
-            global_logger.info(f"You can apply changes to governance by calling the following method")
+            global_logger.info(
+                f"You can apply changes to governance by calling the following method"
+            )
             global_logger.info(f"  gov.apply_model_changes()")
-            global_logger.info(f"Or calling gov.export() method will automatically apply changes to governance")
+            global_logger.info(
+                f"Or calling gov.export() method will automatically apply changes to governance"
+            )
 
     def _find_plan_model(self):
         model_name = self.model.get("name", None)
-        if model_name is None: 
-            return None 
+        if model_name is None:
+            return None
 
         for link in self._plan.get("model_links", []):
             if link["model_name"] == model_name:
                 return link
-                
-        return None              
+
+        return None
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []

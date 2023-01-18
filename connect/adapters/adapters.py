@@ -35,7 +35,9 @@ class Adapter:
     ):
 
         self.governance = governance
-        self.governance.set_artifacts(model_name, model_tags, model_version, assessment_dataset_name)
+        self.governance.set_artifacts(
+            model_name, model_tags, model_version, assessment_dataset_name
+        )
 
     def metrics_to_governance(
         self,

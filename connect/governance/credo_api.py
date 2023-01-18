@@ -161,7 +161,9 @@ class CredoApi:
         path = f"use_cases/{use_case_id}/assessments/{id}"
         return self._client.get(path)
 
-    def update_use_case_model_link_tags(self, use_case_id: str, model_link_id: str, tags: dict):
+    def update_use_case_model_link_tags(
+        self, use_case_id: str, model_link_id: str, tags: dict
+    ):
         """
         Update tags of use case model link
 
@@ -186,9 +188,11 @@ class CredoApi:
 
         path = f"use_cases/{use_case_id}/model_links/{model_link_id}"
         data = {"tags": tags, "$type": "use_case_model_links", "id": model_link_id}
-        return self._client.patch(path, data)        
+        return self._client.patch(path, data)
 
-    def update_use_case_model_link_version(self, use_case_id: str, model_link_id: str, version: str):
+    def update_use_case_model_link_version(
+        self, use_case_id: str, model_link_id: str, version: str
+    ):
         """
         Update version of use case model link
 
@@ -212,5 +216,9 @@ class CredoApi:
         """
 
         path = f"use_cases/{use_case_id}/model_links/{model_link_id}"
-        data = {"model_version": version, "$type": "use_case_model_links", "id": model_link_id}
-        return self._client.patch(path, data)        
+        data = {
+            "model_version": version,
+            "$type": "use_case_model_links",
+            "id": model_link_id,
+        }
+        return self._client.patch(path, data)
