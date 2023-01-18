@@ -154,7 +154,7 @@ class StatisticTestEvidence(Evidence):
         self.significant = (
             True if self.p_value <= self.significance_threshold else False
         )
-        super().__init__("statisticTest", additional_labels, **metadata)
+        super().__init__("statistical_test", additional_labels, **metadata)
 
     @property
     def data(self):
