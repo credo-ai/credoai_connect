@@ -192,6 +192,13 @@ class Governance:
         else:
             return {}
 
+    def get_model_version(self):
+        """Get the version for the associated model"""
+        if self._model:
+            return self._model.get("version", None)
+        else:
+            return {}
+
     def register(
         self,
         assessment_plan_url: str = None,
@@ -290,6 +297,7 @@ class Governance:
         self,
         model: str,
         model_tags: dict,
+        model_version: str,
         training_dataset: str = None,
         assessment_dataset: str = None,
     ):
@@ -311,9 +319,9 @@ class Governance:
         """
 
         global_logger.info(
-            f"Adding model ({model}) to governance. Model has tags: {model_tags}"
+            f"Adding model ({model}) to governance. Model has tags: {model_tags} and version: {model_version}"
         )
-        prepared_model = {"name": model, "tags": model_tags}
+        prepared_model = {"name": model, "tags": model_tags, "version": model_version}
         if training_dataset:
             prepared_model["training_dataset_name"] = training_dataset
         if assessment_dataset:
@@ -394,6 +402,13 @@ class Governance:
         if model_link_tags != model_tags:
             global_logger.info(f"Model tags are changed from {model_link_tags} to {model_tags}. Updating model tags...")
             self._api.update_use_case_model_link_tags(self._use_case_id, model_link["id"], model_tags)
+
+        model_version = self.model.get("version", None)
+        model_link_version = model_link.get("version", None)
+        # Update model version if changed
+        if model_link_version != model_version:
+            global_logger.info(f"Model version is changed from {model_link_version} to {model_version}. Updating model version...")
+            self._api.update_use_case_model_link_version(self._use_case_id, model_link["id"], model_version)
 
     def _find_model_link_from_assessment_plan(self):
         model_name = self.model.get("name", None)
