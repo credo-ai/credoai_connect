@@ -394,7 +394,7 @@ class Governance:
 
     def apply_model_changes(self):
         """
-        Update model's tags and version to governance if changed
+        Update model's tags and version to CredoAI Governance if changed
         """
 
         # find model_link with model name from assessment plan
