@@ -328,6 +328,7 @@ class Governance:
             prepared_model["assessment_dataset_name"] = assessment_dataset
         self._model = prepared_model
 
+
     def set_evidence(self, evidences: List[Evidence]):
         """
         Update evidences
@@ -392,25 +393,27 @@ class Governance:
 
     def _update_model_link(self):
         # find model_link with model name from assessment plan
-        model_link = self._find_model_link_from_assessment_plan()
-        if model_link is None:
+        plan_model = self._find_plan_model()
+        if plan_model is None:
             return
 
         model_tags = self.model.get("tags", {}) or {}
-        model_link_tags = model_link.get("tags", {}) or {}
+        plan_model_tags = plan_model.get("tags", {}) or {}
         # Update model tags if changed
-        if model_link_tags != model_tags:
-            global_logger.info(f"Model tags are changed from {model_link_tags} to {model_tags}. Updating model tags...")
-            self._api.update_use_case_model_link_tags(self._use_case_id, model_link["id"], model_tags)
+        if plan_model_tags != model_tags:
+            global_logger.info(f"Model tags are changed from {plan_model_tags} to {model_tags}. Updating model tags...")
+            self._api.update_use_case_model_link_tags(self._use_case_id, plan_model["id"], model_tags)
 
         model_version = self.model.get("version", None)
-        model_link_version = model_link.get("version", None)
+        plan_model_version = plan_model.get("version", None)
         # Update model version if changed
-        if model_link_version != model_version:
-            global_logger.info(f"Model version is changed from {model_link_version} to {model_version}. Updating model version...")
-            self._api.update_use_case_model_link_version(self._use_case_id, model_link["id"], model_version)
+        if plan_model_version != model_version:
+            global_logger.info(f"Model version is changed from {plan_model_version} to {model_version}. Updating model version...")
+            self._api.update_use_case_model_link_version(self._use_case_id, plan_model["id"], model_version)
 
-    def _find_model_link_from_assessment_plan(self):
+
+
+    def _find_plan_model(self):
         model_name = self.model.get("name", None)
         if model_name is None: 
             return None 
