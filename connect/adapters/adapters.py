@@ -30,11 +30,14 @@ class Adapter:
         governance: Governance,
         model_name: str,
         model_tags: Optional[dict] = None,
+        model_version: Optional[str] = None,
         assessment_dataset_name: str = None,
     ):
 
         self.governance = governance
-        self.governance.set_artifacts(model_name, model_tags, assessment_dataset_name)
+        self.governance.set_artifacts(
+            model_name, model_tags, model_version, assessment_dataset_name
+        )
 
     def metrics_to_governance(
         self,
