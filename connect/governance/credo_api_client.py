@@ -148,6 +148,14 @@ class CredoApiClient:
             self.refresh_token()
             response = self._session.request(method, endpoint, **kwargs)
 
+        if response.status_code >= 400:
+            data = response.json()
+            if data:
+                for error in data.get("errors", []):
+                    global_logger.error(
+                        f"Error happened from [{method.upper()}] {endpoint} : Message={error['title']}, Error Detail={error['detail']}"
+                    )
+
         response.raise_for_status()
 
         if response.content:

@@ -103,6 +103,40 @@ class Governance:
         """
         self._evidences += wrap_list(evidences)
 
+    def apply_model_changes(self):
+        """
+        Update Platform model's tags and version to CredoAI Governance if changed
+
+        This function will update the platform model associated with the assessment plan with
+        the tags and version associated with the local model associated with Governance. If no
+        model has been registered on the platform, nothing will be updated.
+        """
+        # association between keys and api calls:
+        api_calls = {
+            "tags": self._api.update_use_case_model_link_tags,
+            "model_version": self._api.update_use_case_model_link_version,
+        }
+
+        # find model_link with model name from assessment plan
+        plan_model = self._find_plan_model()
+        if plan_model is None:
+            return
+
+        model_info = self.get_model_info()
+        plan_model_info = self._get_model_info(plan_model)
+        for key in model_info.keys():
+            model_value = model_info[key]
+            plan_model_value = plan_model[key]
+            if model_value != plan_model_value:
+                global_logger.info(
+                    "%s\n%s",
+                    f"Platform model and local model {key} do not match. Platform {key}: {plan_model_value}, Local {key}: {model_value}\n",
+                    f"Updated platform model {key}...",
+                )
+                api_call = api_calls[key]
+                api_call(self._use_case_id, plan_model["id"], model_value)
+                plan_model[key] = model_value
+
     def clear_evidence(self):
         self.set_evidence([])
 
@@ -174,7 +208,7 @@ class Governance:
         List[EvidenceRequirement]
         """
         if tags is None:
-            tags = self.get_model_tags()
+            tags = self.get_model_info()["tags"]
 
         reqs = [e for e in self._evidence_requirements if check_subset(e.tags, tags)]
         if verbose:
@@ -185,12 +219,9 @@ class Governance:
         """Return the unique tags used for all evidence requirements"""
         return self._unique_tags
 
-    def get_model_tags(self):
-        """Get the tags for the associated model"""
-        if self._model:
-            return self._model["tags"]
-        else:
-            return {}
+    def get_model_info(self):
+        """Get the tags and version for the associated model"""
+        return self._get_model_info(self._model)
 
     def register(
         self,
@@ -290,6 +321,7 @@ class Governance:
         self,
         model: str,
         model_tags: dict,
+        model_version: str = None,
         training_dataset: str = None,
         assessment_dataset: str = None,
     ):
@@ -311,14 +343,20 @@ class Governance:
         """
 
         global_logger.info(
-            f"Adding model ({model}) to governance. Model has tags: {model_tags}"
+            f"Adding model ({model}) to governance. Model has tags: {model_tags} and version: {model_version}"
         )
-        prepared_model = {"name": model, "tags": model_tags}
+        prepared_model = {
+            "name": model,
+            "tags": model_tags,
+            "model_version": model_version,
+        }
         if training_dataset:
             prepared_model["training_dataset_name"] = training_dataset
         if assessment_dataset:
             prepared_model["assessment_dataset_name"] = assessment_dataset
         self._model = prepared_model
+
+        self._print_model_changes_log()
 
     def set_evidence(self, evidences: List[Evidence]):
         """
@@ -347,6 +385,9 @@ class Governance:
         global_logger.info(
             f"Uploading {len(self._evidences)} evidences.. for use_case_id={self._use_case_id} policy_pack_id={self._policy_pack_id}"
         )
+
+        # update when model tags are changed
+        self.apply_model_changes()
 
         assessment = self._api.create_assessment(
             self._use_case_id, self._prepare_export_data()
@@ -379,6 +420,32 @@ class Governance:
                 error = assessment["error"]
                 global_logger.error(f"Error in uploading evidences : {error}")
 
+    def _print_model_changes_log(self):
+        # find model_link with model name from assessment plan
+        plan_model = self._find_plan_model()
+        if plan_model is None:
+            return
+
+        model_info = self.get_model_info()
+        plan_model_info = self._get_model_info(plan_model)
+        match = True
+        for key in model_info.keys():
+            model_value = model_info[key]
+            plan_model_value = plan_model[key]
+            if model_value != plan_model_value:
+                match = False
+                global_logger.info(
+                    f"Platform model and local model {key} do not match. Platform {key}: {plan_model_value}, Local {key}: {model_value}"
+                )
+        if not match:
+            global_logger.info(
+                """
+        You can apply changes to governance by calling the following method:
+            gov.apply_model_changes()
+        Alternatively, calling gov.export() method will automatically apply changes to governance.
+                """
+            )
+
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
         for e in evidence:
@@ -407,6 +474,31 @@ class Governance:
         data = json_dumps(serialize(data=data, meta=meta))
         with open(filename, "w") as f:
             f.write(data)
+
+    def _find_plan_model(self):
+        """Return model from assessment plan who matches name of associated model"""
+        if self.model is None or self._plan is None:
+            return None
+
+        model_name = self.model.get("name", None)
+        if model_name is None:
+            return None
+
+        for link in self._plan.get("model_links", []):
+            if link["model_name"] == model_name:
+                return link
+
+        return None
+
+    def _get_model_info(self, model):
+        """Get the tags and version for a model"""
+        if model:
+            return {
+                "tags": model.get("tags", {}),
+                "model_version": model.get("model_version", None),
+            }
+        else:
+            return {"tags": {}, "model_version": None}
 
     def _match_requirements(self):
         missing = []
