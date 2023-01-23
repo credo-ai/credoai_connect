@@ -144,6 +144,7 @@ class StatisticTestEvidence(Evidence):
         test_statistic: float,
         significance_threshold: float,
         p_value: float,
+        significant: bool,
         additional_labels=None,
         **metadata
     ):
@@ -151,9 +152,7 @@ class StatisticTestEvidence(Evidence):
         self.test_statistic = test_statistic
         self.significance_threshold = significance_threshold
         self.p_value = p_value
-        self.significant = (
-            True if self.p_value <= self.significance_threshold else False
-        )
+        self.significant = significant
         super().__init__("statistical_test", additional_labels, **metadata)
 
     @property
