@@ -113,11 +113,12 @@ class StatisticTestContainer(EvidenceContainer):
             "test_statistic",
             "significance_threshold",
             "p_value",
+            "significant",
         }
         column_overlap = data.columns.intersection(required_columns)
         if len(column_overlap) != len(required_columns):
             raise ValidationError(
-                f"Metrics dataframe must have columns: {required_columns}"
+                f"Statistics dataframe must have columns: {required_columns}"
             )
 
 
