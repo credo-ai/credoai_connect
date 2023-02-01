@@ -6,9 +6,16 @@ Credo AI Platform API
 """
 from .containers import (
     EvidenceContainer,
+    FigureContainer,
     MetricContainer,
-    TableContainer,
     StatisticTestContainer,
+    TableContainer,
 )
-from .evidence import Evidence, MetricEvidence, TableEvidence, StatisticTestEvidence
+from .evidence import (
+    Evidence,
+    FigureEvidence,
+    MetricEvidence,
+    StatisticTestEvidence,
+    TableEvidence,
+)
 from .evidence_requirement import EvidenceRequirement

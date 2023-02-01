@@ -3,7 +3,12 @@ from typing import Optional
 
 import pandas as pd
 
-from connect.evidence import EvidenceContainer, MetricContainer, TableContainer
+from connect.evidence import (
+    EvidenceContainer,
+    FigureContainer,
+    MetricContainer,
+    TableContainer,
+)
 from connect.governance import Governance
 from connect.utils import ValidationError, wrap_list
 
@@ -37,6 +42,39 @@ class Adapter:
         self.governance = governance
         self.governance.set_artifacts(
             model_name, model_tags, model_version, assessment_dataset_name
+        )
+
+    def figure_to_governance(
+        self,
+        data: dict,
+        source: str,
+        labels: dict = None,
+        metadata: dict = None,
+        overwrite_governance: bool = True,
+    ):
+        """
+        Packages metrics as evidence and sends them to governance
+
+        Parameters
+        ---------
+        data: dict
+            Dictionary to pass to evidence_fun. The dictionary must have a "figure" and "title"
+            key. See FigureContainer for more details
+        source : str
+            Label for what generated the table. Added to metadata
+        labels : dict
+            Additional key/value pairs to act as labels for the evidence
+        metadata : dict
+            Metadata to pass to underlying evidence
+        overwrite_governance : bool
+            When adding evidence to a Governance object, whether to overwrite existing
+            evidence or not, default False.
+        evidence_fun : callable
+            Function to pass data, labels and metadata. The function should return a list of
+            evidence. Default: self._to_evidence
+        """
+        self._evidence_to_governance(
+            FigureContainer, data, source, labels, metadata, overwrite_governance
         )
 
     def metrics_to_governance(

@@ -65,6 +65,54 @@ class Evidence(ABC):
         pass
 
 
+class FigureEvidence(Evidence):
+    """
+    Evidence for Figure
+
+    Parameters
+    ----------
+    title : string
+        short identifier for metric.
+    figure : float
+        metric value
+    confidence_interval : [float, float]
+        [lower, upper] confidence interval
+    confidence_level : int
+        Level of confidence for the confidence interval (e.g., 95%)
+    metadata : dict, optional
+        Arbitrary keyword arguments to append to metric as metadata. These will be
+        displayed in the governance app
+    """
+
+    def __init__(
+        self,
+        title,
+        figure,
+        content_type=None,
+        description=None,
+        additional_labels=None,
+        **metadata
+    ):
+        self.title = title
+        self.figure = figure
+        self.description = description
+        self.content_type = content_type
+        super().__init__("figure", additional_labels, **metadata)
+
+    @property
+    def data(self):
+        return {
+            "file": self.figure,
+            "description": self.description,
+            "content_type": self.content_type,
+        }
+
+    @property
+    def base_label(self):
+        label = {"title": self.title}
+        return label
+
+
 class MetricEvidence(Evidence):
     """
     Evidence for Metric:value result type

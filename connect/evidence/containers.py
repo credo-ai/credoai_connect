@@ -4,13 +4,21 @@ Generic containers for evaluator results
 The containers accept raw data from the evaluators and convert it into
 suitable evidences.
 """
+import base64
+import io
+import mimetypes
 from abc import ABC, abstractmethod
 
 import pandas as pd
 
 from connect.utils import Scrubber, ValidationError
 
-from .evidence import MetricEvidence, StatisticTestEvidence, TableEvidence
+from .evidence import (
+    FigureEvidence,
+    MetricEvidence,
+    StatisticTestEvidence,
+    TableEvidence,
+)
 
 
 class EvidenceContainer(ABC):
@@ -64,6 +72,63 @@ class EvidenceContainer(ABC):
     @abstractmethod
     def _validate(self, data):
         pass
+
+
+class FigureContainer(EvidenceContainer):
+    def __init__(
+        self,
+        data: dict,
+        labels: dict = None,
+        metadata: dict = None,
+    ):
+        super().__init__(FigureEvidence, data, labels, metadata)
+
+    @property
+    def scrubbed_data(self):
+        try:
+            encoded, content_type = self._encode_file(self._data["figure"])
+        except TypeError:
+            encoded, content_type = self._encode_figure_in_memory(self._data["figure"])
+        return {
+            "figure": encoded,
+            "content_type": content_type,
+            "title": self._data["title"],
+            "description": self._data.get("description"),
+        }
+
+    def to_evidence(self, **metadata):
+        return [
+            self.evidence_class(
+                additional_labels=self.labels,
+                **self.scrubbed_data,
+                **self.metadata,
+                **metadata,
+            )
+        ]
+
+    def _validate_inputs(self, data):
+        for required in ["figure", "title"]:
+            if required not in data:
+                raise ValidationError(f"'{required}' is a required key in data")
+        if not isinstance(data["title"], str):
+            raise ValidationError(f"'title' must be a string")
+
+    def _validate(self, data):
+        pass
+
+    def _encode_file(self, figure_file):
+        with open(figure_file, "rb") as figure2string:
+            encoded = base64.b64encode(figure2string.read()).decode("ascii")
+        content_type = mimetypes.guess_type(figure_file)[0]
+        return encoded, content_type
+
+    def _encode_figure_in_memory(self, fig):
+        pic_IObytes = io.BytesIO()
+        fig.savefig(pic_IObytes, format="png")
+        pic_IObytes.seek(0)
+        encoded = base64.b64encode(pic_IObytes.read()).decode("ascii")
+        content_type = "image/png"
+        return encoded, content_type
 
 
 class MetricContainer(EvidenceContainer):
