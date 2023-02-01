@@ -75,7 +75,7 @@ class Governance:
         self._evidence_requirements: List[EvidenceRequirement] = []
         self._evidences: List[Evidence] = []
         self._model = None
-        self._plan: Optional[dict] = None
+        self._plan: Optional[dict] = None  # assessment_plan
         self._unique_tags: List[dict] = []
 
         if credo_api_client:
@@ -222,6 +222,9 @@ class Governance:
     def get_model_info(self):
         """Get the tags and version for the associated model"""
         return self._get_model_info(self._model)
+
+    def get_policy_checklist(self):
+        return self._plan.get("policy_questions")
 
     def register(
         self,
