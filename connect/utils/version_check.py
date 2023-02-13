@@ -12,9 +12,14 @@ def validate_version():
     current_version = get_version()
 
     package = "credoai-connect"
-    response = requests.get(f"https://pypi.org/pypi/{package}/json")
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package}/json")
+    except requests.ConnectionError:
+        global_logger.info(
+            "No internet connection. Cannot determine whether Credo AI Connect version is up-to-date"
+        )
+        return
     latest_version = response.json()["info"]["version"]
-
     on_latest = current_version == latest_version
 
     if not on_latest:
