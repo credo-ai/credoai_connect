@@ -124,7 +124,8 @@ class Governance:
         model_info = self.get_model_info()
         for key in model_info.keys():
             api_call = api_calls.get(key, None)
-            if api_call == None: continue
+            if api_call == None:
+                continue
 
             model_value = model_info[key]
             plan_model_value = plan_model[key]
@@ -440,7 +441,7 @@ class Governance:
         Alternatively, calling gov.export() method will automatically apply changes to governance.
                         """
                     )
-                    
+
                 if key == "model_version":
                     global_logger.info(
                         f"""
@@ -448,7 +449,6 @@ class Governance:
         Please update the model version in the governance app.
                         """
                     )
-
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []

@@ -189,4 +189,3 @@ class CredoApi:
         path = f"use_cases/{use_case_id}/model_links/{model_link_id}"
         data = {"tags": tags, "$type": "use_case_model_links", "id": model_link_id}
         return self._client.patch(path, data)
-
