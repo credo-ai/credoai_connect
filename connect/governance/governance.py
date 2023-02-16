@@ -105,16 +105,15 @@ class Governance:
 
     def apply_model_changes(self):
         """
-        Update Platform model's tags and version to CredoAI Governance if changed
+        Update Platform model's tags to CredoAI Governance if changed
 
         This function will update the platform model associated with the assessment plan with
-        the tags and version associated with the local model associated with Governance. If no
+        the tags associated with the local model associated with Governance. If no
         model has been registered on the platform, nothing will be updated.
         """
         # association between keys and api calls:
         api_calls = {
             "tags": self._api.update_use_case_model_link_tags,
-            "model_version": self._api.update_use_case_model_link_version,
         }
 
         # find model_link with model name from assessment plan
@@ -123,8 +122,11 @@ class Governance:
             return
 
         model_info = self.get_model_info()
-        plan_model_info = self._get_model_info(plan_model)
         for key in model_info.keys():
+            api_call = api_calls.get(key, None)
+            if api_call == None:
+                continue
+
             model_value = model_info[key]
             plan_model_value = plan_model[key]
             if model_value != plan_model_value:
@@ -133,7 +135,6 @@ class Governance:
                     f"Platform model and local model {key} do not match. Platform {key}: {plan_model_value}, Local {key}: {model_value}\n",
                     f"Updated platform model {key}...",
                 )
-                api_call = api_calls[key]
                 api_call(self._use_case_id, plan_model["id"], model_value)
                 plan_model[key] = model_value
 
@@ -427,24 +428,27 @@ class Governance:
             return
 
         model_info = self.get_model_info()
-        plan_model_info = self._get_model_info(plan_model)
-        match = True
         for key in model_info.keys():
             model_value = model_info[key]
             plan_model_value = plan_model[key]
             if model_value != plan_model_value:
-                match = False
-                global_logger.info(
-                    f"Platform model and local model {key} do not match. Platform {key}: {plan_model_value}, Local {key}: {model_value}"
-                )
-        if not match:
-            global_logger.info(
-                """
+                if key == "tags":
+                    global_logger.info(
+                        f"""
+        Platform model and local model tags do not match. Platform tags: {plan_model_value}, Local tags: {model_value}
         You can apply changes to governance by calling the following method:
             gov.apply_model_changes()
         Alternatively, calling gov.export() method will automatically apply changes to governance.
-                """
-            )
+                        """
+                    )
+
+                if key == "model_version":
+                    global_logger.info(
+                        f"""
+        Platform model and local model versions do not match. Platform version: {plan_model_value}, Local version: {model_value}
+        Please update the model version in the governance app.
+                        """
+                    )
 
     def _check_inclusion(self, label, evidence):
         matching_evidence = []
