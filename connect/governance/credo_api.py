@@ -190,35 +190,3 @@ class CredoApi:
         data = {"tags": tags, "$type": "use_case_model_links", "id": model_link_id}
         return self._client.patch(path, data)
 
-    def update_use_case_model_link_version(
-        self, use_case_id: str, model_link_id: str, version: str
-    ):
-        """
-        Update version of use case model link
-
-        Parameters
-        ----------
-        use_case_id : str
-            use case id
-        model_link_id : str
-            use case model link id
-        version : str
-            model version
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        HTTPError
-            When API request returns error
-        """
-
-        path = f"use_cases/{use_case_id}/model_links/{model_link_id}"
-        data = {
-            "model_version": version,
-            "$type": "use_case_model_links",
-            "id": model_link_id,
-        }
-        return self._client.patch(path, data)
