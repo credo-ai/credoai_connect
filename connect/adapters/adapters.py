@@ -62,7 +62,7 @@ class Adapter:
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
-            evidence or not, default False.
+            evidence or not, default True.
         """
         self._evidence_to_governance(
             self._metrics_to_evidence,
@@ -96,7 +96,7 @@ class Adapter:
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
-            evidence or not, default False.
+            evidence or not, default True.
         evidence_fun : callable
             Function to pass data, labels and metadata. The function should return a list of
             evidence. Default: self._to_evidence
