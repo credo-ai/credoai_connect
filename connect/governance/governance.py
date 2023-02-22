@@ -497,6 +497,7 @@ class Governance:
     def _get_model_info(self, model):
         """Get the tags and version for a model"""
         if model:
+            model = {k: v for k, v in model.items() if v}
             return {
                 "tags": model.get("tags", {}),
                 "model_version": model.get("model_version", None),
