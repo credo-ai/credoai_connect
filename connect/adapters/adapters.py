@@ -33,7 +33,7 @@ class Adapter:
         model_version: Optional[str] = None,
         assessment_dataset_name: str = None,
     ):
-
+        model_tags = model_tags or {}
         self.governance = governance
         self.governance.set_artifacts(
             model_name, model_tags, model_version, assessment_dataset_name
