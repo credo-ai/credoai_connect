@@ -5,6 +5,7 @@ Credo Governance
 import json
 import sys
 import time
+from urllib.parse import urlparse, parse_qs
 from pprint import pprint
 from typing import List, Optional, Union
 
@@ -280,6 +281,13 @@ class Governance:
             )
 
         if assessment_plan_url:
+            api_base, access_token = self._parse_assessment_plan_url(
+                assessment_plan_url
+            )
+            if api_base and access_token:
+                self._api._client.set_access_token(access_token)
+                self._api._client.set_api_base(api_base)
+
             plan = self._api.get_assessment_plan(assessment_plan_url)
 
         if assessment_plan:
@@ -317,6 +325,12 @@ class Governance:
                 )
 
             self.clear_evidence()
+
+    def _parse_assessment_plan_url(self, assessment_plan_url):
+        api_base = assessment_plan_url.split("/use_cases/")[0]
+        result = urlparse(assessment_plan_url)
+        query = parse_qs(result.query)
+        return api_base, query.get("access_token", [None])[0]
 
     def set_artifacts(
         self,

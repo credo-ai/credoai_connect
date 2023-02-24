@@ -72,7 +72,7 @@ class CredoApiConfig:
         config_path = config_path or self.default_config_path()
 
         if not os.path.exists(config_path):
-            self.logger.error("Path to config file Not Found")
+            # self.logger.error("Path to config file Not Found")
             # return example
             self._api_key = None
             self._tenant = None
@@ -108,6 +108,7 @@ class CredoApiClient:
             self._config = CredoApiConfig()
             self._config.load_config(config_path=config_path)
 
+        self._api_base = self._config.api_base
         self._session = requests.Session()
         self.refresh_token()
 
@@ -135,6 +136,9 @@ class CredoApiClient:
             "X-Client-Version": get_version(),
         }
         self._session.headers.update(headers)
+
+    def set_api_base(self, value):
+        self._api_base = value
 
     def __make_request(self, method: str, path: str, **kwargs):
 
@@ -164,7 +168,7 @@ class CredoApiClient:
             return None
 
     def __build_endpoint(self, path):
-        return os.path.join(self._config.api_base, path)
+        return os.path.join(self._api_base, path)
 
     def get(self, path: str, **kwargs):
         """
