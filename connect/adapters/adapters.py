@@ -30,7 +30,7 @@ class Adapter:
         governance: Governance,
         model_name: str,
         model_tags: Optional[dict] = None,
-        model_version: Optional[str] = None,
+        model_version: Optional[str] = "",
         assessment_dataset_name: str = None,
     ):
         model_tags = model_tags or {}

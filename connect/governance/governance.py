@@ -322,7 +322,7 @@ class Governance:
         self,
         model: str,
         model_tags: dict,
-        model_version: str = None,
+        model_version: str = "",
         training_dataset: str = None,
         assessment_dataset: str = None,
     ):
@@ -337,6 +337,8 @@ class Governance:
             List of key:value pairs specifying model tags. These are typically
             used to pair the model with tagged governance requirements,
             which are defined in a Governance instance's assessment_plan
+        model_version : str
+            Model Version, by default "" (API will convert null values to "")
         training_dataset : str, optional
             training dataset name, by default None
         assessment_dataset : str, optional
@@ -499,10 +501,10 @@ class Governance:
         if model:
             return {
                 "tags": model.get("tags", {}),
-                "model_version": model.get("model_version", None),
+                "model_version": model.get("model_version", ""),
             }
         else:
-            return {"tags": {}, "model_version": None}
+            return {"tags": {}, "model_version": ""}
 
     def _match_requirements(self):
         missing = []
