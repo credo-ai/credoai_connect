@@ -21,6 +21,8 @@ class Adapter:
         List of key:value pairs specifying model tags. These are typically
         used to pair the model with tagged governance requirements,
         which are defined in a Governance instance's assessment_plan
+    model_version : str, optional
+        Version of the model
     assessment_dataset_name : dict, optional
         Name of dataset used to assess the model
     """
@@ -30,7 +32,7 @@ class Adapter:
         governance: Governance,
         model_name: str,
         model_tags: Optional[dict] = None,
-        model_version: Optional[str] = None,
+        model_version: Optional[str] = str(),
         assessment_dataset_name: str = None,
     ):
         model_tags = model_tags or {}
