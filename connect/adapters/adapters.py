@@ -21,6 +21,8 @@ class Adapter:
         List of key:value pairs specifying model tags. These are typically
         used to pair the model with tagged governance requirements,
         which are defined in a Governance instance's assessment_plan
+    model_version : str, optional
+        Version of the model
     assessment_dataset_name : dict, optional
         Name of dataset used to assess the model
     """
@@ -30,10 +32,10 @@ class Adapter:
         governance: Governance,
         model_name: str,
         model_tags: Optional[dict] = None,
-        model_version: Optional[str] = None,
+        model_version: Optional[str] = str(),
         assessment_dataset_name: str = None,
     ):
-
+        model_tags = model_tags or {}
         self.governance = governance
         self.governance.set_artifacts(
             model_name, model_tags, model_version, assessment_dataset_name
@@ -62,7 +64,7 @@ class Adapter:
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
-            evidence or not, default False.
+            evidence or not, default True.
         """
         self._evidence_to_governance(
             self._metrics_to_evidence,
@@ -96,7 +98,7 @@ class Adapter:
             Metadata to pass to underlying evidence
         overwrite_governance : bool
             When adding evidence to a Governance object, whether to overwrite existing
-            evidence or not, default False.
+            evidence or not, default True.
         evidence_fun : callable
             Function to pass data, labels and metadata. The function should return a list of
             evidence. Default: self._to_evidence
