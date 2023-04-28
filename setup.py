@@ -13,7 +13,7 @@ URL = ""
 LICENSE = ""
 DOWNLOAD_URL = "https://github.com/credo-ai/credoai_connect"
 VERSION = __version__
-PYTHON_REQUIRES = ">=3.8"
+PYTHON_REQUIRES = ">=3.7"
 
 # Fetch ReadMe
 with open("README.md", "r") as fh:
@@ -36,9 +36,11 @@ EXTRAS_REQUIRES = {"dev": dev_requirements}
 
 CLASSIFIERS = [
     "Intended Audience :: Information Technology",
-    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Operating System :: OS Independent",
 ]
@@ -47,7 +49,6 @@ PACKAGE_DATA = {}
 
 
 if __name__ == "__main__":
-
     import sys
 
     from setuptools import setup
