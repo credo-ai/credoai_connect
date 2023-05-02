@@ -194,7 +194,7 @@ class TableEvidence(Evidence):
     def data(self):
         columns = [
             {"value": k, "type": self._transform_type(v)}
-            for k, v in self._data.dtypes.iteritems()
+            for k, v in self._data.dtypes.items()
         ]
         return {
             "columns": columns,
