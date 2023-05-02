@@ -136,7 +136,6 @@ class TestGovernance:
         assert False == gov.registered
 
     def test_register_with_assessment_plan(self, gov):
-
         gov.register(assessment_plan=ASSESSMENT_PLAN_JSON_STR)
 
         assert USE_CASE_ID == gov._use_case_id
@@ -148,7 +147,6 @@ class TestGovernance:
         assert {"metric_type": "accuracy_score"} == req.label
 
     def test_register_with_assessment_plan_file(self, gov, plan_file_mock):
-
         gov.register(assessment_plan_file="filename")
 
         assert USE_CASE_ID == gov._use_case_id

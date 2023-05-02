@@ -2,17 +2,17 @@
 from typing import TYPE_CHECKING, TypeVar
 
 
-def get_pandas_profile_type():
-    """check if deepchecks is imported. If not, define object for type checking"""
+def get_ydata_profile_type():
+    """check if ydata profiling is imported. If not, define object for type checking"""
     if TYPE_CHECKING:
         try:
-            from pandas_profiling import ProfileReport
+            from ydata_profiling import ProfileReport
 
-            pandas_profile_type = ProfileReport
+            ydata_profiling = ProfileReport
         except ImportError:
-            pandas_profile_type = TypeVar("Profilereport")
+            ydata_profiling = TypeVar("ProfileReport")
     else:
-        from pandas_profiling import ProfileReport
+        from ydata_profiling import ProfileReport
 
-        pandas_profile_type = ProfileReport
-    return pandas_profile_type
+        ydata_profiling = ProfileReport
+    return ydata_profiling
