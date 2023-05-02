@@ -4,9 +4,9 @@ from connect.evidence import EvidenceContainer
 from connect.utils import Scrubber, ValidationError
 
 from .evidence import DataProfilerEvidence, ModelProfilerEvidence
-from .utils import get_pandas_profile_type
+from .utils import get_ydata_profile_type
 
-PandasProfileType = get_pandas_profile_type()
+ydataProfileType = get_ydata_profile_type()
 
 
 class DataProfilerContainer(EvidenceContainer):
@@ -30,9 +30,9 @@ class DataProfilerContainer(EvidenceContainer):
         pass
 
     def _validate_inputs(self, data):
-        if not isinstance(data, PandasProfileType):
+        if not isinstance(data, ydataProfileType):
             raise ValidationError(
-                "'data' must be a pandas_profiling.profile_report.ProfileReport"
+                "'data' must be a ydata_profiling.profile_report.ProfileReport"
             )
 
 
