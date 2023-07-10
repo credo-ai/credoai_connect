@@ -29,13 +29,10 @@ Documentation is hosted by [readthedocs](https://credoai-connect.readthedocs.io/
 
 
 ## Logging
-In order to collect all logging information into a specific file, please insert the path to the folder that
-will contain the file in the environment variable `CREDO_CONNECT_LOG_PATH`. For example:
+Logging defaults to stdout. In order to collect all logging information into a specific file,
+set the desired location to the environment variable `CREDO_CONNECT_LOG_PATH`. 
 
-```python
-# To create the log file in the local folder
-CREDO_CONNECT_LOG_PATH="."
-```
+
 
 > **Warning**
 > Make sure the destination has write permissions, otherwise you will get a `PermissionError` at the moment you
