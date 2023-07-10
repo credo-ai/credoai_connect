@@ -26,3 +26,14 @@ pip install credoai-connect
 ## Documentation
 
 Documentation is hosted by [readthedocs](https://credoai-connect.readthedocs.io/en/stable/).
+
+
+## Logging
+Logging defaults to stdout. In order to collect all logging information into a specific file,
+set the desired location to the environment variable `CREDO_CONNECT_LOG_PATH`. 
+
+
+
+> **Warning**
+> Make sure the destination has write permissions, otherwise you will get a `PermissionError` at the moment you
+> attempt library import.
